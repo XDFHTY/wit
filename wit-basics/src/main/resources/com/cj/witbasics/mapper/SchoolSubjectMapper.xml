@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witbasics.mapper.SchoolSubjectMapper" >
+  <resultMap id="BaseResultMap" type="com.cj.witbasics.entity.SchoolSubject" >
+    <id column="subject_id" property="subjectId" jdbcType="BIGINT" />
+    <result column="school_id" property="schoolId" jdbcType="BIGINT" />
+    <result column="subjects_id" property="subjectsId" jdbcType="BIGINT" />
+    <result column="subject_name" property="subjectName" jdbcType="VARCHAR" />
+    <result column="subject_english_name" property="subjectEnglishName" jdbcType="VARCHAR" />
+    <result column="subject_required" property="subjectRequired" jdbcType="CHAR" />
+    <result column="subject_report" property="subjectReport" jdbcType="CHAR" />
+    <result column="subject_sort" property="subjectSort" jdbcType="INTEGER" />
+    <result column="founder_id" property="founderId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="operator_id" property="operatorId" jdbcType="BIGINT" />
+    <result column="delete_time" property="deleteTime" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="CHAR" />
+    <result column="is_begin" property="isBegin" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    subject_id, school_id, subjects_id, subject_name, subject_english_name, subject_required,
+    subject_report, subject_sort, founder_id, create_time, operator_id, delete_time,
+    state, is_begin
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from school_subject
+    where subject_id = #{subjectId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from school_subject
+    where subject_id = #{subjectId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.cj.witbasics.entity.SchoolSubject" >
+    insert into school_subject (subject_id, school_id, subjects_id,
+    subject_name, subject_english_name, subject_required,
+    subject_report, subject_sort, founder_id,
+    create_time, operator_id, delete_time,
+    state, is_begin)
+    values (#{subjectId,jdbcType=BIGINT}, #{schoolId,jdbcType=BIGINT}, #{subjectsId,jdbcType=BIGINT},
+    #{subjectName,jdbcType=VARCHAR}, #{subjectEnglishName,jdbcType=VARCHAR}, #{subjectRequired,jdbcType=CHAR},
+    #{subjectReport,jdbcType=CHAR}, #{subjectSort,jdbcType=INTEGER}, #{founderId,jdbcType=BIGINT},
+    #{createTime,jdbcType=TIMESTAMP}, #{operatorId,jdbcType=BIGINT}, #{deleteTime,jdbcType=TIMESTAMP},
+    #{state,jdbcType=CHAR}, #{isBegin,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cj.witbasics.entity.SchoolSubject" >
+    insert into school_subject
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="subjectId != null" >
+        subject_id,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
+      </if>
+      <if test="subjectsId != null" >
+        subjects_id,
+      </if>
+      <if test="subjectName != null" >
+        subject_name,
+      </if>
+      <if test="subjectEnglishName != null" >
+        subject_english_name,
+      </if>
+      <if test="subjectRequired != null" >
+        subject_required,
+      </if>
+      <if test="subjectReport != null" >
+        subject_report,
+      </if>
+      <if test="subjectSort != null" >
+        subject_sort,
+      </if>
+      <if test="founderId != null" >
+        founder_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="operatorId != null" >
+        operator_id,
+      </if>
+      <if test="deleteTime != null" >
+        delete_time,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+      <if test="isBegin != null" >
+        is_begin,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="subjectId != null" >
+        #{subjectId,jdbcType=BIGINT},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="subjectsId != null" >
+        #{subjectsId,jdbcType=BIGINT},
+      </if>
+      <if test="subjectName != null" >
+        #{subjectName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectEnglishName != null" >
+        #{subjectEnglishName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectRequired != null" >
+        #{subjectRequired,jdbcType=CHAR},
+      </if>
+      <if test="subjectReport != null" >
+        #{subjectReport,jdbcType=CHAR},
+      </if>
+      <if test="subjectSort != null" >
+        #{subjectSort,jdbcType=INTEGER},
+      </if>
+      <if test="founderId != null" >
+        #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null" >
+        #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=CHAR},
+      </if>
+      <if test="isBegin != null" >
+        #{isBegin,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cj.witbasics.entity.SchoolSubject" >
+    update school_subject
+    <set >
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="subjectsId != null" >
+        subjects_id = #{subjectsId,jdbcType=BIGINT},
+      </if>
+      <if test="subjectName != null" >
+        subject_name = #{subjectName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectEnglishName != null" >
+        subject_english_name = #{subjectEnglishName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectRequired != null" >
+        subject_required = #{subjectRequired,jdbcType=CHAR},
+      </if>
+      <if test="subjectReport != null" >
+        subject_report = #{subjectReport,jdbcType=CHAR},
+      </if>
+      <if test="subjectSort != null" >
+        subject_sort = #{subjectSort,jdbcType=INTEGER},
+      </if>
+      <if test="founderId != null" >
+        founder_id = #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null" >
+        delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=CHAR},
+      </if>
+      <if test="isBegin != null" >
+        is_begin = #{isBegin,jdbcType=CHAR},
+      </if>
+    </set>
+    where subject_id = #{subjectId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cj.witbasics.entity.SchoolSubject" >
+    update school_subject
+    set school_id = #{schoolId,jdbcType=BIGINT},
+    subjects_id = #{subjectsId,jdbcType=BIGINT},
+    subject_name = #{subjectName,jdbcType=VARCHAR},
+    subject_english_name = #{subjectEnglishName,jdbcType=VARCHAR},
+    subject_required = #{subjectRequired,jdbcType=CHAR},
+    subject_report = #{subjectReport,jdbcType=CHAR},
+    subject_sort = #{subjectSort,jdbcType=INTEGER},
+    founder_id = #{founderId,jdbcType=BIGINT},
+    create_time = #{createTime,jdbcType=TIMESTAMP},
+    operator_id = #{operatorId,jdbcType=BIGINT},
+    delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+    state = #{state,jdbcType=CHAR},
+    is_begin = #{isBegin,jdbcType=CHAR}
+    where subject_id = #{subjectId,jdbcType=BIGINT}
+  </update>
+
+  <!--根据科目名,查重-->
+  <select id="selectBySubjectName" parameterType="String" resultType="int">
+      SELECT COUNT(subject_name) FROM school_subject WHERE subject_name = #{subjectName,jdbcType=VARCHAR}
+  </select>
+
+  <!--根据科目名,查重-->
+  <select id="selectBySubNameReturnId" parameterType="String" resultType="Long">
+    SELECT subject_id FROM school_subject WHERE subject_name = #{subjectName,jdbcType=VARCHAR}
+  </select>
+
+  <!--根据学校ID,科目名称,计数-->
+  <select id="selectCountByAll" resultType="int">
+      SELECT count(subject_id)
+      FROM school_subject
+      WHERE
+      school_id = #{schoolId,jdbcType=BIGINT}
+      AND
+      state != '0'
+      AND
+      is_begin != '0'
+  </select>
+
+  <!--根据学校ID,科目名称,模糊查询-->
+  <select id="selectByScholId" resultMap="BaseResultMap">
+      SELECT *
+      FROM school_subject
+      WHERE
+      school_id = #{schoolId,jdbcType=BIGINT}
+      AND
+      state != '0'
+      AND
+      is_begin != '0'
+  </select>
+
+  <!--根据开课ID，批量查询-->
+  <select id="selectBathInfo" parameterType="List" resultMap="BaseResultMap">
+      SELECT
+      ss.subject_name, ss.create_time, ss.state, ss.is_begin
+      FROM school_subject AS ss
+      WHERE
+      ss.subject_id IN
+      <foreach collection="list" item="subject" open="(" close=")" separator=",">
+        #{subject, jdbcType=BIGINT}
+      </foreach>
+  </select>
+  
+  <resultMap id="bbMap" type="com.cj.witbasics.entity.SchoolSubject">
+    <result column="subject_id" property="subjectId" jdbcType="BIGINT" />
+    <result column="subject_name" property="subjectName" jdbcType="VARCHAR" />
+  </resultMap>
+
+  <resultMap id="ssssss" type="com.cj.witcommon.entity.SchoolClassInfo">
+    <id column="class_id" property="classId" jdbcType="BIGINT" />
+    <result property="className" column="class_name" />
+    <result property="classHeadmasterId" column="class_headmaster_id" />
+    <result property="classHeadmaster" column="class_headmaster" />
+    <result property="classNumber" column="class_number" />
+    <result property="classType" column="class_type" />
+    <result property="classLevel" column="class_level" />
+    <result column="class_period_id" property="classPeriodId" jdbcType="BIGINT" />
+    <result column="class_period" property="classPeriod" jdbcType="VARCHAR" />
+    <result column="class_year" property="classYear" jdbcType="TIMESTAMP" />
+    <!--<result column="thetime" property="thetime" jdbcType="TIMESTAMP" />-->
+    <collection property="subject" ofType="com.cj.witcommon.entity.SubjectForTea" select="getSubjectInfoss" column="class_id">
+    </collection>
+  </resultMap>
+
+  <resultMap id="subjectForTeaMaps" type="com.cj.witcommon.entity.SubjectForTea">
+    <result property="adminId" column="admin_id" />
+    <result property="fullName" column="full_name" />
+    <result property="subjectId" column="subject_id" />
+    <result property="subjectName" column="subject_name" />
+  </resultMap>
+  <!--通用查询-->
+  <select id="getSubjectInfoss" parameterType="Long" resultMap="subjectForTeaMaps">
+    SELECT
+    sb.subject_id, sb.subject_name, ai.admin_id, ai.full_name
+    FROM
+    class_subject_info ss
+    LEFT JOIN school_class AS sc ON sc.class_id = ss.class_id
+    LEFT JOIN school_subject AS sb ON ss.subject_id = sb.subject_id
+    LEFT JOIN admin_info AS ai ON ss.admin_id = ai.admin_id
+    WHERE
+    sc.class_id = #{class_id,jdbcType=INTEGER}
+    AND
+    sc.state != '0'
+    AND
+    ss.state != '0'
+  </select>
+  <!--
+      SELECT
+    ss.subject_id, ss.subject_name
+    FROM class_subject_info AS cs
+    LEFT JOIN school_subject AS ss
+    ON cs.subject_id = ss.subject_id
+    LEFT JOIN school_class AS sc
+    ON sc.class_id = cs.class_id
+    WHERE sc.class_id = #{classId,jdbcType=BIGINT}
+
+  -->
+  <!--返回班级对应科目-->
+  <select id="findSubjectInfo" resultMap="ssssss" parameterType="Long">
+    SELECT
+    *
+    FROM
+    school_class AS sc
+    WHERE
+    sc.class_id = #{classId,jdbcType=BIGINT}
+    AND
+    sc.state != '0'
+  </select>
+
+  <!--返回所有开课信息,根据学校ID-->
+  <select id="selectBySchoolIdAllInfo" parameterType="Long" resultMap="BaseResultMap">
+    SELECT
+    ss.subject_name, ss.create_time, ss.is_begin
+    FROM school_subject AS ss
+    WHERE
+    ss.school_id
+    IN
+    (#{schoolId, jdbcType=BIGINT})
+    ORDER BY ss.is_begin ASC
+  </select>
+
+  <!--根据科目ID查询课程信息-->
+  <select id="findAllSchoolSubjectBySubjectsId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    school_subject ss
+    WHERE
+    ss.subjects_id = #{subjectsId}
+    AND
+    ss.state = '1'
+  </select>
+</mapper>

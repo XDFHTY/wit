@@ -1,0 +1,1040 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witbasics.mapper.SchoolClassMapper" >
+  <resultMap id="BaseResultMap" type="com.cj.witbasics.entity.SchoolClass" >
+    <id column="class_id" property="classId" jdbcType="BIGINT" />
+    <result column="class_name" property="className" jdbcType="VARCHAR" />
+    <result column="class_abbreviation" property="classAbbreviation" jdbcType="VARCHAR" />
+    <result column="class_number" property="classNumber" jdbcType="INTEGER" />
+    <result column="school_id" property="schoolId" jdbcType="BIGINT" />
+    <result column="class_campus" property="classCampus" jdbcType="VARCHAR" />
+    <result column="class_type_id" property="classTypeId" jdbcType="INTEGER" />
+    <result column="class_type" property="classType" jdbcType="VARCHAR" />
+    <result column="class_level_id" property="classLevelId" jdbcType="INTEGER" />
+    <result column="class_level" property="classLevel" jdbcType="VARCHAR" />
+    <result column="class_year" property="classYear" jdbcType="TIMESTAMP" />
+    <result column="thetime" property="thetime" jdbcType="TIMESTAMP" />
+    <result column="class_period_id" property="classPeriodId" jdbcType="INTEGER" />
+    <result column="class_period" property="classPeriod" jdbcType="VARCHAR" />
+    <result column="class_headmaster_id" property="classHeadmasterId" jdbcType="INTEGER" />
+    <result column="class_headmaster" property="classHeadmaster" jdbcType="VARCHAR" />
+    <result column="founder_id" property="founderId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="operator_id" property="operatorId" jdbcType="BIGINT" />
+    <result column="delete_time" property="deleteTime" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    class_id, class_name, class_abbreviation, class_number, school_id, class_campus,
+    class_type_id, class_type, class_level_id, class_level, class_year, thetime, class_period_id,
+    class_period, class_headmaster_id, class_headmaster, founder_id, create_time, operator_id,
+    delete_time, state
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from school_class
+    where class_id = #{classId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from school_class
+    where class_id = #{classId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.cj.witbasics.entity.SchoolClass" >
+    insert into school_class (class_id, class_name, class_abbreviation,
+    class_number, school_id, class_campus,
+    class_type_id, class_type, class_level_id,
+    class_level, class_year, class_period_id,
+    class_period, class_headmaster_id, class_headmaster,
+    founder_id, create_time, operator_id,
+    delete_time, state)
+    values (#{classId,jdbcType=BIGINT}, #{className,jdbcType=VARCHAR}, #{classAbbreviation,jdbcType=VARCHAR},
+    #{classNumber,jdbcType=INTEGER}, #{schoolId,jdbcType=BIGINT}, #{classCampus,jdbcType=VARCHAR},
+    #{classTypeId,jdbcType=INTEGER}, #{classType,jdbcType=VARCHAR}, #{classLevelId,jdbcType=INTEGER},
+    #{classLevel,jdbcType=VARCHAR}, #{classYear,jdbcType=VARCHAR}, #{classPeriodId,jdbcType=INTEGER},
+    #{classPeriod,jdbcType=VARCHAR}, #{classHeadmasterId,jdbcType=INTEGER}, #{classHeadmaster,jdbcType=VARCHAR},
+    #{founderId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{operatorId,jdbcType=BIGINT},
+    #{deleteTime,jdbcType=TIMESTAMP}, #{state,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cj.witbasics.entity.SchoolClass" useGeneratedKeys="true" keyProperty="classId">
+    insert into school_class
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="classId != null" >
+        class_id,
+      </if>
+      <if test="className != null" >
+        class_name,
+      </if>
+      <if test="classAbbreviation != null" >
+        class_abbreviation,
+      </if>
+      <if test="classNumber != null" >
+        class_number,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
+      </if>
+      <if test="classCampus != null" >
+        class_campus,
+      </if>
+      <if test="classTypeId != null" >
+        class_type_id,
+      </if>
+      <if test="classType != null" >
+        class_type,
+      </if>
+      <if test="classLevelId != null" >
+        class_level_id,
+      </if>
+      <if test="classLevel != null" >
+        class_level,
+      </if>
+      <if test="classYear != null" >
+        class_year,
+      </if>
+      <if test="thetime != null" >
+        thetime,
+      </if>
+      <if test="classPeriodId != null" >
+        class_period_id,
+      </if>
+      <if test="classPeriod != null" >
+        class_period,
+      </if>
+      <if test="classHeadmasterId != null" >
+        class_headmaster_id,
+      </if>
+      <if test="classHeadmaster != null" >
+        class_headmaster,
+      </if>
+      <if test="founderId != null" >
+        founder_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="operatorId != null" >
+        operator_id,
+      </if>
+      <if test="deleteTime != null" >
+        delete_time,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="classId != null" >
+        #{classId,jdbcType=BIGINT},
+      </if>
+      <if test="className != null" >
+        #{className,jdbcType=VARCHAR},
+      </if>
+      <if test="classAbbreviation != null" >
+        #{classAbbreviation,jdbcType=VARCHAR},
+      </if>
+      <if test="classNumber != null" >
+        #{classNumber,jdbcType=INTEGER},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="classCampus != null" >
+        #{classCampus,jdbcType=VARCHAR},
+      </if>
+      <if test="classTypeId != null" >
+        #{classTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="classType != null" >
+        #{classType,jdbcType=VARCHAR},
+      </if>
+      <if test="classLevelId != null" >
+        #{classLevelId,jdbcType=INTEGER},
+      </if>
+      <if test="classLevel != null" >
+        #{classLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="classYear != null" >
+        str_to_date(CONCAT(#{classYear}, '-9-1'), '%Y-%m-%d %H'),
+      </if>
+      <if test="thetime != null" >
+        #{thetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="classPeriodId != null" >
+        #{classPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="classPeriod != null" >
+        #{classPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="classHeadmasterId != null" >
+        #{classHeadmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="classHeadmaster != null" >
+        #{classHeadmaster,jdbcType=VARCHAR},
+      </if>
+      <if test="founderId != null" >
+        #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null" >
+        #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cj.witbasics.entity.SchoolClass" >
+    update school_class
+    <set >
+      <if test="className != null" >
+        class_name = #{className,jdbcType=VARCHAR},
+      </if>
+      <if test="classAbbreviation != null" >
+        class_abbreviation = #{classAbbreviation,jdbcType=VARCHAR},
+      </if>
+      <if test="classNumber != null" >
+        class_number = #{classNumber,jdbcType=INTEGER},
+      </if>
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="classCampus != null" >
+        class_campus = #{classCampus,jdbcType=VARCHAR},
+      </if>
+      <if test="classTypeId != null" >
+        class_type_id = #{classTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="classType != null" >
+        class_type = #{classType,jdbcType=VARCHAR},
+      </if>
+      <if test="classLevelId != null" >
+        class_level_id = #{classLevelId,jdbcType=INTEGER},
+      </if>
+      <if test="classLevel != null" >
+        class_level = #{classLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="classYear != null" >
+        class_year = str_to_date(CONCAT(#{classYear}, '-9-1'), '%Y-%m-%d %H'),
+      </if>
+      <if test="classPeriodId != null" >
+        class_period_id = #{classPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="classPeriod != null" >
+        class_period = #{classPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="classHeadmasterId != null" >
+        class_headmaster_id = #{classHeadmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="classHeadmaster != null" >
+        class_headmaster = #{classHeadmaster,jdbcType=VARCHAR},
+      </if>
+      <if test="founderId != null" >
+        founder_id = #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null" >
+        delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=CHAR},
+      </if>
+    </set>
+    where class_id = #{classId,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByPrimaryKeySelective2" parameterType="com.cj.witbasics.entity.SchoolClass" >
+    update school_class
+    <set >
+      <if test="className != null" >
+        class_name = #{className,jdbcType=VARCHAR},
+      </if>
+      <if test="classAbbreviation != null" >
+        class_abbreviation = #{classAbbreviation,jdbcType=VARCHAR},
+      </if>
+      <if test="classNumber != null" >
+        class_number = #{classNumber,jdbcType=INTEGER},
+      </if>
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="classCampus != null" >
+        class_campus = #{classCampus,jdbcType=VARCHAR},
+      </if>
+      <if test="classTypeId != null" >
+        class_type_id = #{classTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="classType != null" >
+        class_type = #{classType,jdbcType=VARCHAR},
+      </if>
+      <if test="classLevelId != null" >
+        class_level_id = #{classLevelId,jdbcType=INTEGER},
+      </if>
+      <if test="classLevel != null" >
+        class_level = #{classLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="classYear != null" >
+        class_year = #{classYear,jdbcType=VARCHAR},
+      </if>
+      <if test="classPeriodId != null" >
+        class_period_id = #{classPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="classPeriod != null" >
+        class_period = #{classPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="classHeadmasterId != null" >
+        class_headmaster_id = #{classHeadmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="classHeadmaster != null" >
+        class_headmaster = #{classHeadmaster,jdbcType=VARCHAR},
+      </if>
+      <if test="founderId != null" >
+        founder_id = #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null" >
+        delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=CHAR},
+      </if>
+    </set>
+    where class_id = #{classId,jdbcType=BIGINT}
+  </update>
+
+
+  <update id="updateByPrimaryKey" parameterType="com.cj.witbasics.entity.SchoolClass" >
+    update school_class
+    set class_name = #{className,jdbcType=VARCHAR},
+    class_abbreviation = #{classAbbreviation,jdbcType=VARCHAR},
+    class_number = #{classNumber,jdbcType=INTEGER},
+    school_id = #{schoolId,jdbcType=BIGINT},
+    class_campus = #{classCampus,jdbcType=VARCHAR},
+    class_type_id = #{classTypeId,jdbcType=INTEGER},
+    class_type = #{classType,jdbcType=VARCHAR},
+    class_level_id = #{classLevelId,jdbcType=INTEGER},
+    class_level = #{classLevel,jdbcType=VARCHAR},
+    class_year = #{classYear,jdbcType=VARCHAR},
+    class_period_id = #{classPeriodId,jdbcType=INTEGER},
+    class_period = #{classPeriod,jdbcType=VARCHAR},
+    class_headmaster_id = #{classHeadmasterId,jdbcType=INTEGER},
+    class_headmaster = #{classHeadmaster,jdbcType=VARCHAR},
+    founder_id = #{founderId,jdbcType=BIGINT},
+    create_time = #{createTime,jdbcType=TIMESTAMP},
+    operator_id = #{operatorId,jdbcType=BIGINT},
+    delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+    state = #{state,jdbcType=CHAR}
+    where class_id = #{classId,jdbcType=BIGINT}
+  </update>
+
+
+
+
+
+  <!--根据班级号更新-->
+  <update id="updateByClassNumberSelective" parameterType="com.cj.witbasics.entity.SchoolClass" >
+    update school_class
+    <set >
+      <if test="className != null" >
+        class_name = #{className,jdbcType=VARCHAR},
+      </if>
+      <if test="classAbbreviation != null" >
+        class_abbreviation = #{classAbbreviation,jdbcType=VARCHAR},
+      </if>
+      <if test="classNumber != null" >
+        class_number = #{classNumber,jdbcType=INTEGER},
+      </if>
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="classCampus != null" >
+        class_campus = #{classCampus,jdbcType=VARCHAR},
+      </if>
+      <if test="classTypeId != null" >
+        class_type_id = #{classTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="classType != null" >
+        class_type = #{classType,jdbcType=VARCHAR},
+      </if>
+      <if test="classLevelId != null" >
+        class_level_id = #{classLevelId,jdbcType=INTEGER},
+      </if>
+      <if test="classLevel != null" >
+        class_level = #{classLevel,jdbcType=VARCHAR},
+      </if>
+      <if test="classYear != null" >
+        class_year = #{classYear,jdbcType=VARCHAR},
+      </if>
+      <if test="classPeriodId != null" >
+        class_period_id = #{classPeriodId,jdbcType=INTEGER},
+      </if>
+      <if test="classPeriod != null" >
+        class_period = #{classPeriod,jdbcType=VARCHAR},
+      </if>
+      <if test="classHeadmasterId != null" >
+        class_headmaster_id = #{classHeadmasterId,jdbcType=INTEGER},
+      </if>
+      <if test="classHeadmaster != null" >
+        class_headmaster = #{classHeadmaster,jdbcType=VARCHAR},
+      </if>
+      <if test="founderId != null" >
+        founder_id = #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="deleteTime != null" >
+        delete_time = #{deleteTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=CHAR},
+      </if>
+    </set>
+    where class_number = #{classNumber,jdbcType=BIGINT}
+  </update>
+
+  <!--根据班级号classNumber 查询班级ID-->
+  <select id="selectByClassNumber" parameterType="int" resultType="long">
+    SELECT class_id FROM school_class WHERE class_number = #{classNumber}
+  </select>
+
+  <!--根据班级号classNumber 查重-->
+  <select id="selectByCountClassNumber" parameterType="int" resultType="int">
+    SELECT count(class_id) FROM school_class WHERE class_number = #{classNumber}
+  </select>
+
+  <!--查询记录总数-->
+  <select id="selectCountClassInfo" resultType="int" parameterType="Map">
+    SELECT COUNT(sc.class_number )
+    FROM
+    class_subject_info ss
+    LEFT JOIN school_class AS sc ON sc.class_id = ss.class_id
+    LEFT JOIN school_subject AS sb ON ss.subject_id = sb.subject_id
+    LEFT JOIN admin_info AS ai ON ss.admin_id = ai.admin_id
+    <where>
+      <if test="vague != null">
+        sc.class_number LIKE CONCAT(#{vague}, "%")
+        OR sc.class_headmaster LIKE CONCAT(#{vague}, "%")
+        OR sc.class_name LIKE CONCAT(#{vague}, "%")
+        limit #{minRow},#{pageSize}
+      </if>
+    </where>
+  </select>
+
+  <resultMap id="selectInfoMap" type="com.cj.witcommon.entity.SchoolClassInfo">
+    <id column="class_id" property="classId" jdbcType="BIGINT" />
+    <result property="className" column="class_name" />
+    <result property="classHeadmasterId" column="class_headmaster_id" />
+    <result property="classHeadmaster" column="class_headmaster" />
+    <result property="classNumber" column="class_number" />
+    <result property="classType" column="class_type" />
+    <result property="classLevel" column="class_level" />
+    <result column="class_period" property="classPeriod" jdbcType="VARCHAR" />
+    <result column="class_year" property="classYear" jdbcType="TIMESTAMP" />
+    <!--<result column="thetime" property="thetime" jdbcType="TIMESTAMP" />-->
+    <collection property="subject" ofType="com.cj.witcommon.entity.SubjectForTea" select="getSubjectInfo" column="class_id">
+    </collection>
+  </resultMap>
+
+  <select id="selectByInfoForLsit" resultMap="selectInfoMap">
+    SELECT
+    sc.class_headmaster_id, sc.class_name, sc.class_headmaster,
+    sc.class_number, sc.class_type, sc.class_level,
+    sb.subject_id, sb.subject_name, ai.admin_info_id, ai.full_name
+    FROM
+    class_subject_info ss
+    LEFT JOIN school_class AS sc
+    ON sc.class_id = ss.class_id
+    LEFT JOIN school_subject AS sb
+    ON ss.subject_id = sb.subject_id
+    LEFT JOIN admin_info AS ai
+    ON ss.admin_id = ai.admin_id
+    <where>
+      /*根据学段ID,查询学制 &lt;= ----> 小于转义气
+      endTime传入参数
+      NOW：当前时间
+      class_year:入学年度
+      */
+      <if test="periodId != null">
+        (
+        sc.class_period_id = #{periodId}
+        AND
+        DATEDIFF(NOW(), #{sc.class_year}) &lt;=
+        /*内层查询开始*/
+        (
+        SELECT period_system FROM school_period WHERE period_id = #{periodId}
+        ) * 366
+        /*内层查询结束*/
+        )
+      </if>
+      /**
+      年级下的班级
+      */
+      <if test="gradeAge != null">
+        AND
+        (
+        <if test="gradeAge == '一年级'">
+          sc.period_id = #{periodId}
+          AND
+          DATEDIFF(NOW(), #{sc.class_year}) BETWEEN 365 AND 366
+        </if>
+        )
+      </if>
+      /*模糊条件*/
+      <if test="vague != null and vague != ''">
+        (
+        sc.class_number LIKE CONCAT(#{vague}, "%")
+        OR sc.class_headmaster LIKE CONCAT(#{vague}, "%")
+        OR sc.class_name LIKE CONCAT(#{vague}, "%")
+        )
+      </if>
+      AND sc.state != '0'
+    </where>
+    limit #{minRow},#{pageSize}
+  </select>
+
+  <!--判断学段下是否有班级-->
+  <select id="selectCountPeriodId" parameterType="Long" resultType="int">
+      SELECT COUNT(class_id) FROM school_class WHERE class_period_id IN (#{periodId})
+  </select>
+
+  <!--判断类型下是否有班级-->
+  <select id="selectCountClassType" parameterType="int" resultType="int">
+    SELECT COUNT(class_id) FROM school_class WHERE class_type_id IN (#{classTypeId})
+  </select>
+
+  <!--判断类型下是否有班级-->
+  <select id="selectCountClassLevel" parameterType="int" resultType="int">
+    SELECT COUNT(class_id) FROM school_class WHERE class_level_id IN (#{classLevel})
+  </select>
+
+  <!--根据校区名称查询校区ID-->
+  <select id="selectByClassName" parameterType="String" resultType="Long">
+    SELECT  FROM school_class WHERE class_level_id IN (#{classLevel})
+  </select>
+
+  <!--
+        sc.class_id,
+        sc.class_name, sc.class_headmaster, sc.class_headmaster_id, sc.class_headmaster,
+        sc.class_number, sc.class_type, sc.class_level,
+        sb.subject_id, sb.subject_name, ai.admin_info_id, ai.full_name, sc.class_year
+    -->
+  <resultMap id="subjectForTeaMap" type="com.cj.witcommon.entity.SubjectForTea">
+    <result property="adminId" column="admin_info_id" />
+    <result property="fullName" column="full_name" />
+    <result property="subjectId" column="subject_id" />
+    <result property="subjectName" column="subject_name" />
+    <result column="class_id" property="classId"/>
+    <result column="staff_number" property="staffNumber"/>
+  </resultMap>
+  <!--通用查询-->
+  <select id="getSubjectInfo" parameterType="Long" resultMap="subjectForTeaMap">
+      SELECT
+        sc.`class_id`,sb.subject_id, sb.subject_name, ai.admin_id, ai.`full_name`,ai.`staff_number`
+      FROM
+      class_subject_info ss
+      LEFT JOIN school_class AS sc
+      ON sc.class_id = ss.class_id
+      LEFT JOIN school_subject AS sb
+      ON ss.subject_id = sb.subject_id
+      LEFT JOIN admin_info AS ai
+      ON ss.admin_id = ai.admin_id
+      WHERE
+      sc.class_id = #{class_id,jdbcType=INTEGER}
+      AND
+      sc.state != '0'
+      AND
+      ss.state != '0'
+  </select>
+
+  <!--根据学段ID,筛选-->
+  <select id="selectByPeriodId" resultMap="selectInfoMap">
+      SELECT
+      sc.class_id, sc.class_period,
+      sc.class_name, sc.class_headmaster, sc.class_headmaster_id, sc.class_headmaster,
+      sc.class_number, sc.class_type, sc.class_level, sc.class_year, sc.thetime
+      FROM
+      school_class AS sc
+      WHERE
+      sc.class_period_id = #{classPeriodId,jdbcType=INTEGER}
+      AND
+      sc.state != '0'
+      limit #{pager.minRow},#{pager.pageSize}
+  </select>
+
+  <!--根据入学年度筛选-->
+  <select id="selectByPeriodAndGrade" resultMap="selectInfoMap">
+    SELECT
+    sc.class_id, sc.class_period,
+    sc.class_name, sc.class_headmaster, sc.class_headmaster_id, sc.class_headmaster,
+    sc.class_number, sc.class_type, sc.class_level, sc.class_year
+    FROM
+    school_class AS sc
+    WHERE
+    sc.state != '0'
+    AND
+    sc.class_id = #{sClass.classId,jdbcType=BIGINT}
+    <if test="sClass.classYear != null">
+      AND
+      DATEDIFF(NOW(), sc.class_year)
+      <if test="gradeAge == 1">
+        BETWEEN 0 AND 366
+      </if>
+      <if test="gradeAge == 2">
+        BETWEEN 367 AND 732
+      </if>
+      <if test="gradeAge == 3">
+        BETWEEN 733 AND 1098
+      </if>
+    </if>
+    limit #{pager.minRow},#{pager.pageSize}
+  </select>
+
+
+  <!--第三层查询,连表筛选-->
+  <select id="selectByVagueParam" resultMap="selectInfoMap">
+    SELECT
+    *
+    FROM
+    school_class AS sc
+    WHERE
+    sc.class_id = #{sClass.classId,jdbcType=BIGINT}
+    AND
+    (sc.class_number LIKE CONCAT(#{vague}, "%")
+    OR sc.class_headmaster LIKE CONCAT(#{vague}, "%")
+    OR sc.class_name LIKE CONCAT(#{vague}, "%"))
+    AND
+    sc.state != '0'
+    limit #{pager.minRow},#{pager.pageSize}
+  </select>
+
+  <!--根据学段筛选,无分页-->
+  <select id="selectByPeriodIdNoPager" parameterType="Long" resultMap="selectInfoMap">
+      SELECT
+      sc.class_id,
+      sc.class_name, sc.class_headmaster, sc.class_headmaster_id, sc.class_headmaster,
+      sc.class_number, sc.class_type, sc.class_level, sc.class_year
+      FROM
+      school_class AS sc
+      WHERE
+      sc.class_period_id = #{classPeriodId,jdbcType=INTEGER}
+      AND
+      sc.state != '0'
+  </select>
+
+  <!--考试模块,根据学段和入学年度筛选-->
+  <select id="findAllClassForYeah" resultMap="selectInfoMap">
+    SELECT
+    sc.class_id,
+    sc.class_name, sc.class_headmaster, sc.class_headmaster_id, sc.class_headmaster,
+    sc.class_number, sc.class_type, sc.class_level, sc.class_year
+    FROM
+    school_class AS sc
+    WHERE
+    sc.state != '0'
+    AND
+    sc.class_id = #{sClass.classId,jdbcType=BIGINT}
+    <if test="sClass.classYear != null">
+      AND
+      DATEDIFF(NOW(), sc.class_year)
+      <if test="gradeAge == 1">
+        BETWEEN 0 AND 366
+      </if>
+      <if test="gradeAge == 2">
+        BETWEEN 367 AND 732
+      </if>
+      <if test="gradeAge == 3">
+        BETWEEN 733 AND 1098
+      </if>
+    </if>
+  </select>
+
+  <!--查重-->
+  <select id="selectCountByClassNumber" parameterType="int" resultType="int">
+    SELECT COUNT(class_id)
+    FROM school_class
+    WHERE
+    class_number = #{classNumber,jdbcType=INTEGER}
+    AND
+    state != '0'
+    LIMIT 1
+  </select>
+
+
+  <select id="findAllSchoolClassByPeriodId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    school_class sc
+    WHERE
+    sc.class_period_id = #{periodId}
+    AND
+    sc.state = '1'
+  </select>
+
+  <resultMap id="mmsdcMap" type="java.util.Map">
+    <id column="class_id" property="classId" jdbcType="BIGINT" />
+    <result column="class_name" property="className" jdbcType="VARCHAR" />
+    <result column="class_abbreviation" property="classAbbreviation" jdbcType="VARCHAR" />
+    <result column="class_number" property="classNumber" jdbcType="INTEGER" />
+  </resultMap>
+  <select id="selectAllNoHeadmaster" resultMap="mmsdcMap">
+    SELECT class_id, class_name, class_abbreviation, class_number
+    FROM school_class
+    WHERE class_headmaster_id is NULL
+  </select>
+
+  <update id="updateByHeadmasterId" parameterType="Long">
+    update school_class
+    SET
+    class_headmaster_id = null,
+    class_headmaster = null
+    where class_id = #{classId,jdbcType=BIGINT}
+  </update>
+
+
+
+
+  <!--班级/年级主任-->
+  <resultMap id="commonssa" type="java.util.HashMap">
+    <result column="id" property="adminId" jdbcType="BIGINT" />
+    <result column="full_name" property="fullName" jdbcType="VARCHAR" />
+    <result column="period_id" property="periodId" jdbcType="BIGINT" />
+    <result column="staff_number" property="staffNumber" jdbcType="VARCHAR" />
+    <result column="class_id" property="classId" jdbcType="BIGINT" />
+    <result column="class_name" property="className" jdbcType="VARCHAR" />
+    <result column="class_number" property="classNumber" jdbcType="VARCHAR" />
+  </resultMap>
+  <!--查询有班主任权限的角色-->
+  <select id="findHasPowerForHeadmaster" resultMap="commonssa">
+    SELECT
+    a.id, IFNULL(ifo.staff_number,-1) AS staff_number,  IFNULL(ifo.full_name,null) AS full_name, IFNULL(sc.class_period_id, -1) as period_id
+    ,IFNULL(sc.class_id, -1) AS class_id, IFNULL(sc.class_name, "空") AS class_name, sc.class_number
+    FROM
+    admin AS a
+    LEFT JOIN admin_role AS ar
+    ON a.role_id = ar.id
+    LEFT JOIN admin_info AS ifo
+    ON a.id = ifo.admin_id
+    LEFT JOIN school_class AS sc
+    ON a.id = sc.class_headmaster_id
+    WHERE
+    a.admin_state != '0'
+    AND
+    a.role_id = '4'
+    <if test="vague != null">
+      AND
+      (
+      ifo.full_name LIKE CONCAT("%", #{vague}, "%")
+      OR
+      ifo.staff_number LIKE CONCAT("%", #{vague}, "%")
+      )
+    </if>
+  </select>
+
+  <!--查询具有年级主任资质的角色-->
+  <resultMap id="sscaxsd" type="java.util.HashMap">
+    <result column="id" property="directorId" jdbcType="BIGINT" />
+    <result column="staff_number" property="staffNumber" jdbcType="VARCHAR" />
+    <result column="full_name" property="fullName" jdbcType="VARCHAR" />
+    <result column="thetime" property="thetime" jdbcType="TIMESTAMP"/>
+  </resultMap>
+  <select id="findHasPowerForDirector" resultMap="sscaxsd">
+    SELECT
+    a.id, IFNULL(ifo.full_name, -1) AS full_name, IFNULL(ifo.staff_number, -1) AS staff_number
+    FROM
+    admin AS a
+    LEFT JOIN admin_role AS ar
+    ON a.role_id = ar.id
+    LEFT JOIN admin_info AS ifo
+    ON a.id = ifo.admin_id
+    WHERE
+    a.role_id = '21'
+    <if test="vague != null">
+      AND
+      (
+      ifo.full_name LIKE CONCAT("%", #{vague}, "%")
+      OR
+      ifo.staff_number LIKE CONCAT("%", #{vague}, "%")
+      )
+    </if>
+  </select>
+
+  <select id="selectInfoByPeriodInfo" parameterType="String" resultType="String">
+      SELECT period_name FROM school_period WHERE period_name = #{periodName,jdbcType=VARCHAR}
+  </select>
+
+  <resultMap id="schoolClassInfo" type="com.cj.witcommon.entity.SchoolClassInfo">
+    <result column="class_id" property="classId"/>
+    <result column="class_name" property="className"/>
+    <result column="class_headmaster_id" property="classHeadmasterId"/>
+    <result column="class_headmaster" property="classHeadmaster"/>
+    <result column="class_number" property="classNumber"/>
+    <result column="class_year" property="classYear"/>
+    <result column="thetime" property="thetime"/>
+    <result column="class_period_id" property="classPeriodId"/>
+    <result column="class_period" property="classPeriod"/>
+    <result column="class_abbreviation" property="classAbbreviation" jdbcType="VARCHAR" />
+    <result column="class_campus" property="classCampus" jdbcType="VARCHAR" />
+    <result column="class_type_id" property="classTypeId" jdbcType="INTEGER" />
+    <result column="class_type" property="classType" jdbcType="VARCHAR" />
+    <result column="class_level_id" property="classLevelId" jdbcType="INTEGER" />
+    <result column="classlevel_name" property="classLevel" jdbcType="VARCHAR" />
+    <collection property="subject" ofType="com.cj.witcommon.entity.SubjectForTea" select="getSubjectInfo" column="class_id">
+    </collection>
+  </resultMap>
+  <!--重构-->
+
+<!--计数-->
+<select id="selectCountByPeriodId" parameterType="int" resultType="int">
+    SELECT
+    count(class_id)
+    FROM
+    school_class AS sc
+    WHERE
+    sc.class_period_id = #{periodId}
+    AND
+    sc.state != '0'
+</select>
+  <!--根据学段筛选-->
+  <select id="selectByPeriodIdUBW" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="schoolClassInfo">
+    SELECT
+    *
+    FROM
+    school_class AS sc,scl.`classlevel_name`
+    left join school_class_level scl on sc.`class_level_id` = scl.`class_level_id`
+    WHERE
+    <if test="parameters.containsKey('periodId')">
+      <if test="parameters.periodId != null and parameters.periodId != ''">
+        sc.class_period_id = #{parameters.periodId}
+        AND
+      </if>
+    </if>
+    sc.state != '0'
+    limit #{minRow},#{pageSize}
+  </select>
+  <!--根据届次筛选-->
+  <select id="selectByPrimaryKeyByPeriodAndThetime" resultMap="schoolClassInfo">
+      SELECT
+      *
+      FROM
+      school_class AS sc
+      WHERE
+      sc.class_id = #{info.classId}
+      AND
+      sc.class_period_id = #{info.classPeriodId}
+      AND
+      sc.thetime = date_format(#{thetime,jdbcType=TIMESTAMP}, '%Y%m%d')
+      AND
+      sc.state != '0'
+  </select>
+
+
+    <!--届次-->
+    <select id="selectByByPeriodAndThetime" resultMap="schoolClassInfo">
+      SELECT
+      *,scl.`classlevel_name`
+      FROM
+      school_class AS sc
+      LEFT JOIN school_class_level scl ON sc.`class_level_id` = scl.`class_level_id`
+      WHERE
+      sc.class_period_id = #{periodId}
+      AND
+      sc.thetime = date_format(#{thetime,jdbcType=TIMESTAMP}, '%Y%m%d')
+      AND
+      sc.state != '0'
+      limit #{pager.minRow},#{pager.pageSize}
+    </select>
+    <!--计数-->
+    <select id="selectCountByPeriodIdAndThetime" resultType="int">
+      SELECT
+      count(class_id)
+      FROM
+      school_class AS sc
+      WHERE
+      sc.class_period_id = #{periodId}
+      AND
+      sc.thetime = date_format(#{thetime,jdbcType=TIMESTAMP}, '%Y%m%d')
+      AND
+      sc.state != '0'
+    </select>
+  <!--模糊查询-->
+  <select id="selectByVagueParamUBW" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="schoolClassInfo">
+    SELECT
+    *
+    FROM
+    school_class AS sc
+    WHERE
+    <if test="parameter != null">
+      sc.class_id = #{parameter}
+      AND
+    </if>
+    <if test="parameters.containsKey('vague')">
+      (
+      sc.class_number LIKE CONCAT(#{parameters.vague}, "%")
+      OR
+      sc.class_headmaster LIKE CONCAT(#{parameters.vague}, "%")
+      OR
+      sc.class_name LIKE CONCAT(#{parameters.vague}, "%")
+      )
+      AND
+    </if>
+    sc.state != '0'
+    limit #{minRow},#{pageSize}
+  </select>
+
+
+  <select id="selectByByPeriodAndThetimeAndVague" resultMap="schoolClassInfo">
+    SELECT
+    *,scl.`classlevel_name`
+    FROM
+    school_class AS sc
+    LEFT JOIN school_class_level scl ON sc.`class_level_id` = scl.`class_level_id`
+    WHERE
+    sc.class_period_id = #{periodId}
+    AND
+    YEAR(sc.`thetime`) = #{thetime}
+    AND
+    <if test="vague != null">
+      (
+      sc.class_number LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_headmaster LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_name LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_abbreviation LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_type LIKE CONCAT(#{vague}, "%")
+      OR
+      scl.`classlevel_name` LIKE CONCAT(#{vague}, "%")
+      )
+      AND
+    </if>
+    sc.state != '0'
+    limit #{pager.minRow},#{pager.pageSize}
+  </select>
+  <!--计数-->
+  <select id="selectCountByPeriodAndThetimeAndVague" resultType="int">
+    SELECT
+    count(class_id)
+    FROM
+    school_class AS sc
+    WHERE
+    sc.class_period_id = #{periodId}
+    AND
+    sc.thetime = date_format(#{thetime,jdbcType=TIMESTAMP}, '%Y%m%d')
+    AND
+    <if test="vague != null">
+      (
+      sc.class_number LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_headmaster LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_name LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_abbreviation LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_type LIKE CONCAT(#{vague}, "%")
+      OR
+      sc.class_level LIKE CONCAT(#{vague}, "%")
+      )
+      AND
+    </if>
+    sc.state != '0'
+  </select>
+
+  <!--======================================================================================-->
+  <resultMap id="PeriodAndThetime" type="com.cj.witcommon.entity.PeriodAndThetime">
+    <result column="period_id" property="classPeriodId"></result>
+    <result column="period_name" property="classPeriod"></result>
+    <collection property="thisYear" ofType="com.cj.witcommon.entity.ClassYear">
+      <result column="class_year" property="classYear"></result>
+      <result column="thetiem" property="thetiem"></result>
+      <collection property="classInfo" ofType="com.cj.witcommon.entity.ClassInfo">
+        <result column="class_id" property="classId"></result>
+        <result column="class_name" property="className"></result>
+
+      </collection>
+
+    </collection>
+  </resultMap>
+  <!--/查询学段、届次、班级信息 树形结构-->
+  <select id="findAllPeriodAndThetimeAndClassBySchoolId" parameterType="java.lang.Long" resultMap="PeriodAndThetime">
+    SELECT
+    sp.`period_id`,sp.`period_name`,
+    sc.class_year,DATE_FORMAT(sc.thetime,'%Y') AS thetiem,
+    sc.class_id,sc.class_name
+    FROM
+    school_period sp
+    LEFT JOIN school_class sc ON sp.`period_id`=sc.class_period_id
+    WHERE
+    sp.school_id = #{schoolId}
+  </select>
+
+<!--
+    IFNULL(sc.class_id, -1) AS class_id, IFNULL(sc.class_name, "空") AS class_name, IFNULL(sc.thetime, "空") AS thetime
+    , IFNULL(sc.class_period, -1) AS class_period, IFNULL(sc.class_period_id, -1) AS class_period_id
+
+-->
+  <!--考试管理-根据届次学段返回编辑-->
+<select id="selectByByPeriodAndThetimeExam" resultMap="BaseResultMap">
+    SELECT
+    *
+    FROM
+    school_class AS sc
+    WHERE
+    sc.class_period_id = #{periodId}
+    AND
+    sc.thetime = date_format(#{thetime,jdbcType=TIMESTAMP}, '%Y%m%d')
+    AND
+    sc.state != '0'
+</select>
+
+  <resultMap id="findTeacherMap" type="com.cj.witbasics.entity.ClassSubjectInfo">
+    <id column="cls_sub_id" property="clsSubId" jdbcType="BIGINT" />
+    <result column="class_id" property="classId" jdbcType="BIGINT" />
+    <result column="subject_id" property="subjectId" jdbcType="BIGINT" />
+    <result column="admin_id" property="adminId" jdbcType="BIGINT" />
+  </resultMap>
+  <!--根据班级id和课程id查询任课教师-->
+  <select id="findTeacher" resultMap="findTeacherMap">
+      SELECT *
+  FROM `class_subject_info`
+  WHERE class_id = #{classId}
+  AND subject_id = #{subjectId}
+  AND state = '1'
+  </select>
+
+  <!--根据班级id和课程id 添加教师-->
+  <insert id="insertTeacher">
+    INSERT INTO `class_subject_info`(class_id,subject_id,admin_id) VALUES (#{classId},#{subjectId},#{adminId})
+  </insert>
+
+  <!--修改班级课程的教师-->
+  <update id="updateTeacher" parameterType="com.cj.witbasics.entity.ClassSubjectInfo">
+    UPDATE `class_subject_info`
+    SET admin_id = #{adminId}
+    WHERE class_id = #{classId}
+    AND subject_id = #{subjectId}
+  </update>
+
+</mapper>

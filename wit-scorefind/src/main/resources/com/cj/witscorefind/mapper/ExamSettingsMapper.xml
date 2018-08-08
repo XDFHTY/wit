@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.ExamSettingsMapper" >
+
+    <!--映射-->
+    <resultMap id="findExamNameResultMap" type="com.cj.witbasics.entity.SchoolExamParent">
+        <id column="exam_parent_id" property="examParentId" jdbcType="BIGINT" />
+        <result column="exam_name" property="examName" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <!--查询所有考试id及名称-->
+    <select id="findExamName" resultMap="findExamNameResultMap">
+        SELECT * FROM school_exam_parent
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findExamByVagueResultMap" type="java.util.Map">
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="exam_id" property="examId" jdbcType="BIGINT" />
+        <result column="exam_type_name" property="examTypeName" jdbcType="VARCHAR" />
+        <result column="exam_time" property="examTime" jdbcType="TIMESTAMP" />
+        <result column="exam_name" property="examName" jdbcType="VARCHAR" />
+    </resultMap>
+    <!--模糊查询考试信息-->
+    <select id="findExamByVague" resultMap="findExamByVagueResultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        select
+              sep.`exam_parent_id`,
+              se.`exam_id`,
+              sep.`exam_name`,
+              se.`exam_type_name`,
+              se.`exam_time`
+            from
+              school_exam_parent sep
+              left join school_exam se
+                on sep.`exam_parent_id` = se.`exam_parent_id`
+                and se.`state` = '1'
+            where 1 = 1
+        <if test="parameters != null">
+            <if test="parameters.containsKey('schoolId')">
+                AND se.school_id = #{parameters.schoolId}
+            </if>
+            <if test="parameters.containsKey('examParentId')">
+                AND sep.`exam_parent_id` = #{parameters.examParentId}
+            </if>
+            <if test="parameters.containsKey('vague')">
+                and se.exam_type_name LIKE CONCAT("%", #{parameters.vague}, "%")
+            </if>
+        </if>
+            group by sep.`exam_name`
+        limit #{minRow},#{maxRow}
+    </select>
+    <!--模糊查询考试信息 计数-->
+    <select id="findExamByVagueTotal" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultType="java.lang.Integer">
+        select
+          count(*)
+        from
+          (select
+            sep.`exam_parent_id`
+          from
+            school_exam_parent sep
+            left join school_exam se
+              on sep.`exam_parent_id` = se.`exam_parent_id`
+             and se.`state` = '1'
+          where 1 = 1
+        <if test="parameters != null">
+            <if test="parameters.containsKey('schoolId')">
+                AND se.school_id = #{parameters.schoolId}
+            </if>
+            <if test="parameters.containsKey('examParentId')">
+                AND sep.`exam_parent_id` = #{parameters.examParentId}
+            </if>
+            <if test="parameters.containsKey('vague')">
+                and se.exam_type_name LIKE CONCAT("%", #{parameters.vague}, "%")
+            </if>
+        </if>
+           group by sep.`exam_name`) as a
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findExamClassResultMap" type="com.cj.witcommon.entity.SchoolClassInfo">
+        <result column="class_id" property="classId"/>
+        <result column="class_name" property="className"/>
+        <result column="class_type_id" property="classTypeId"/>
+        <result column="class_type" property="classType"/>
+        <result column="class_level_id" property="classLevelId"/>
+        <result column="classlevel_name" property="classLevel"/>
+        <collection property="subject" javaType="ArrayList" ofType="com.cj.witcommon.entity.SubjectForTea">
+            <result column="exam_subject" property="subjectName"/>
+        </collection>
+    </resultMap>
+    <!--查询这次考试的班级和考试课程-->
+    <select id="findExamClass" resultMap="findExamClassResultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT
+              a.*,
+              sc.`class_name`,
+              sc.`class_type_id`,
+              sc.`class_type`,
+              sc.`class_level_id`,
+              scl.`classlevel_name`,
+              se2.exam_subject
+            FROM
+              (SELECT
+                sep.`exam_parent_id`,
+                sep.`exam_name`,
+                se.`class_id`
+              FROM
+                school_exam_parent sep
+                LEFT JOIN school_exam se
+                  ON sep.`exam_parent_id` = se.`exam_parent_id`
+                LEFT JOIN school_class sc2
+                  ON se.`class_id` = sc2.`class_id`
+              WHERE se.`state` = '1'
+                AND sc2.`state` = '1'
+        <if test="parameters != null">
+            <if test="parameters.containsKey('schoolId')">
+                AND se.school_id = #{parameters.schoolId}
+            </if>
+        </if>
+        <if test="parameters.containsKey('examParentId')">
+            AND sep.`exam_parent_id` = #{parameters.examParentId}
+        </if>
+        <if test="parameters.containsKey('thetime')">
+            AND YEAR(se.`thetime`) = #{parameters.thetime}
+        </if>
+        <if test="parameters.containsKey('periodId')">
+            and sc2.`class_period_id` = #{parameters.periodId}
+        </if>
+        <if test="parameters.containsKey('classLevelId')">
+            and sc2.`class_level_id` = #{parameters.classLevelId}
+        </if>
+        <if test="parameters.containsKey('classTypeId')">
+            and sc2.`class_type_id` = #{parameters.classTypeId}
+        </if>
+              GROUP BY se.`class_id`
+              LIMIT #{minRow},#{maxRow}
+        ) AS a
+              LEFT JOIN school_exam se2
+                ON a.exam_parent_id = se2.`exam_parent_id`
+                AND a.class_id = se2.`class_id`
+                AND se2.school_id = #{parameters.schoolId}
+                AND se2.`state` = '1'
+              LEFT JOIN school_class sc
+                ON a.class_id = sc.`class_id`
+                AND sc.`state` = '1'
+                AND sc.`school_id` = #{parameters.schoolId}
+              LEFT JOIN school_class_level scl
+                ON sc.`class_level_id` = scl.`class_level_id`
+    </select>
+    <!--计数-->
+    <select id="findExamClassTotal" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+                FROM
+                (
+                SELECT sep.`exam_parent_id`,sep.`exam_name`,se.`class_id`
+                FROM school_exam_parent sep
+                LEFT JOIN school_exam se ON sep.`exam_parent_id` = se.`exam_parent_id`
+                LEFT JOIN school_class sc2 ON se.`class_id` = sc2.`class_id`
+                WHERE
+                se.`state` = '1'
+                AND sc2.`state` = '1'
+        <if test="parameters != null">
+            <if test="parameters.containsKey('schoolId')">
+                AND se.school_id = #{parameters.schoolId}
+            </if>
+        </if>
+        <if test="parameters.containsKey('examParentId')">
+            AND sep.`exam_parent_id` = #{parameters.examParentId}
+        </if>
+        <if test="parameters.containsKey('thetime')">
+            AND YEAR(se.`thetime`) = #{parameters.thetime}
+        </if>
+        <if test="parameters.containsKey('periodId')">
+            and sc2.`class_period_id` = #{parameters.periodId}
+        </if>
+        <if test="parameters.containsKey('classLevelId')">
+            and sc2.`class_level_id` = #{parameters.classLevelId}
+        </if>
+        <if test="parameters.containsKey('classTypeId')">
+            and sc2.`class_type_id` = #{parameters.classTypeId}
+        </if>
+
+                GROUP BY se.`class_id`
+                ) AS a
+    </select>
+
+
+    <!--根据id 课程 查询 examId classTypeId subjectId-->
+    <select id="findClassInfo" parameterType="com.cj.witscorefind.entity.SchoolExamGrade" resultType="java.util.Map">
+            SELECT se.exam_id,sc.`class_type_id`,ss.`subject_id`
+            FROM school_exam se
+            LEFT JOIN school_class sc
+            ON se.`class_id` = sc.`class_id`
+            AND sc.`state` = '1'
+            AND sc.`school_id` = #{schoolId}
+            LEFT JOIN school_subject ss
+            ON ss.`state` = '1'
+            AND ss.`school_id` = #{schoolId}
+            WHERE se.`class_id` = #{classId}
+            AND se.`state` = '1'
+            AND se.`school_id` = #{schoolId}
+            AND se.`exam_parent_id` = #{examParentId}
+            AND YEAR(se.`thetime`) = #{thetime}
+            AND se.`exam_subject` = #{examSubject}
+            AND ss.`subject_name` = #{examSubject}
+    </select>
+
+
+    <!--插入参数基础信息(school_exam_grade表)  主键返回-->
+    <insert id="insertExamGrade" parameterType="com.cj.witscorefind.entity.SchoolExamGrade" useGeneratedKeys="true" keyProperty="examGradeId">
+INSERT INTO  school_exam_grade(school_id,exam_parent_id,exam_id,class_period_id,
+thetime,class_type_id,class_id,exam_subject_id,exam_subject,grade_type,founder_id,create_time,degree,advantage_score
+) VALUES (#{schoolId},#{examParentId},#{examId},#{classPeriodId},#{thetime},
+#{classTypeId},#{classId},#{examSubjectId},#{examSubject},
+#{gradeType},#{founderId},#{createTime},#{degree},#{advantageScore})
+    </insert>
+
+    <!--插入grade信息-->
+    <insert id="insertGrade" parameterType="com.cj.witscorefind.entity.Grade">
+        INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min,num_score,num_task)
+        VALUES (#{examGradeId},#{gradeName},#{gradeType},#{numMax},#{numMin},#{numScore},#{numTask})
+    </insert>
+
+
+    <!--映射-->
+    <resultMap id="findSchoolExamGradeResultMap" type="com.cj.witscorefind.entity.SchoolExamGrade">
+        <id column="exam_grade_id" property="examGradeId"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="exam_id" property="examId"/>
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="thetime" property="thetime"/>
+        <result column="class_type_id" property="classTypeId"/>
+        <result column="class_id" property="classId"/>
+        <result column="exam_subject_id" property="examSubjectId"/>
+        <result column="exam_subject" property="examSubject"/>
+        <result column="grade_type" property="gradeType"/>
+        <result column="founder_id" property="founderId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="delete_time" property="deleteTime"/>
+        <result column="state" property="state"/>
+        <result column="degree" property="degree"/>
+        <result column="advantage_score" property="advantageScore"/>
+    </resultMap>
+    <!--各班单科成绩参数查重-->
+    <select id="findSchoolExamGrade" resultMap="findSchoolExamGradeResultMap">
+        SELECT *
+            FROM school_exam_grade
+            WHERE class_period_id = #{e.periodId}
+            AND school_id = #{e.schoolId}
+            AND thetime = #{e.thetime}
+            AND class_id = #{classId}
+            AND exam_subject = #{e.subjectName}
+            AND grade_type = '3'
+            AND state = '1'
+    </select>
+
+    <!--更新（school_exam_grade表）-->
+    <update id="updateSchoolExamGrade" parameterType="com.cj.witscorefind.entity.SchoolExamGrade">
+            UPDATE school_exam_grade
+            SET operator_id = #{operatorId},
+            degree = #{degree},
+            advantage_score = #{advantageScore}
+            WHERE exam_grade_id = #{examGradeId}
+    </update>
+
+
+
+
+    <!--映射-->
+    <resultMap id="findGradeByIdResultMap"   type="com.cj.witscorefind.entity.Grade">
+        <result column="grade_id" property="gradeId"/>
+        <result column="exam_grade_id" property="examGradeId"/>
+        <result column="grade_name" property="gradeName"/>
+        <result column="grade_type" property="gradeType"/>
+        <result column="num_max" property="numMax"/>
+        <result column="num_min" property="numMin"/>
+        <result column="num_score" property="numScore"/>
+        <result column="num_task" property="numTask"/>
+    </resultMap>
+    <!--各班单科成绩档次查询-->
+    <select id="findGradeById" parameterType="com.cj.witscorefind.entity.SchoolExamGrade" resultMap="findGradeByIdResultMap">
+        select * from grade
+         where exam_grade_id = #{examGradeId}
+    </select>
+
+
+    <!--根据id删除grade表信息-->
+    <delete id="deleteGradeById" parameterType="com.cj.witscorefind.entity.SchoolExamGrade">
+        DELETE FROM grade
+        WHERE exam_grade_id = #{examGradeId}
+    </delete>
+
+    <!--添加grader表信息-->
+    <insert id="insertGradeByMap" parameterType="java.util.Map">
+        INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min,num_score,num_task)
+        VALUES (#{examGradeId},#{gradeName},#{type},#{numMax},#{numMin},#{numScore},#{numTask})
+    </insert>
+
+    <!--总分参数设置查重-->
+    <select id="findExamByTotal" parameterType="com.cj.witscorefind.entity.ExamSettingReq" resultMap="findSchoolExamGradeResultMap">
+            select * from school_exam_grade
+            where school_id = #{schoolId}
+            and exam_parent_id = #{examParentId}
+            and class_period_id = #{periodId}
+            and thetime = #{thetime}
+            and class_type_id = #{classTypeId}
+            and grade_type = '1'
+            and state = '1'
+    </select>
+
+     <!--查询总分档次信息-->
+    <select id="findGradeByTotal" parameterType="com.cj.witscorefind.entity.ExamSettingReq" resultMap="findGradeByIdResultMap">
+        select g.*
+        from school_exam_grade seg
+        left join grade g on seg.`exam_grade_id` = g.`exam_grade_id`
+        where seg.state = '1'
+        and seg.`exam_parent_id` = #{examParentId}
+        and seg.`school_id` = #{schoolId}
+        and seg.`class_period_id` = #{periodId}
+        and seg.`thetime` = #{thetime}
+        AND seg.`class_type_id` = #{classTypeId}
+        and seg.`grade_type` = '1'
+        and g.`grade_type` = '1'
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findThetimeByExamResultMap" type="com.cj.witscorefind.entity.PeriodThetime">
+        <result column="class_period_id" property="periodId"/>
+        <result column="class_period" property="periodName"/>
+        <collection property="thetimes" javaType="ArrayList" ofType="String">
+            <result column="thetime"/>
+        </collection>
+    </resultMap>
+    <!--查询这次考试的学段和届次-->
+    <select id="findThetimeByExam" parameterType="com.cj.witscorefind.entity.ExamSettingReq" resultMap="findThetimeByExamResultMap">
+        select sc.`class_period_id`,sc.`class_period`,se.`thetime`
+        from school_exam se
+        left join school_class sc on se.`class_id` = sc.`class_id`
+        and sc.`school_id` = #{schoolId}
+        and sc.`state` = '1'
+        where
+        se.`school_id` = #{schoolId}
+        and se.`state` = '1'
+        and se.`exam_parent_id` = #{examParentId}
+        group by sc.`class_period_id`,sc.`thetime`
+
+    </select>
+
+
+    <!--班级总分任务数 查重-->
+    <select id="findExamByClass" resultMap="findSchoolExamGradeResultMap">
+            SELECT * FROM`school_exam_grade`
+            WHERE school_id = #{e.schoolId}
+            AND state = '1'
+            AND class_period_id = #{e.periodId}
+            AND thetime = #{e.thetime}
+            AND class_type_id = #{e.classTypeId}
+            AND class_id = #{classId}
+            AND grade_type = '2'
+    </select>
+
+
+    <!--班级单科分数线 查重-->
+    <select id="findExamByScore" parameterType="com.cj.witscorefind.entity.SchoolExamGrade" resultMap="findSchoolExamGradeResultMap">
+        select *
+                from `school_exam_grade`
+                where school_id = #{schoolId}
+                and state = '1'
+                and exam_parent_id = #{examParentId}
+                and class_period_id = #{classPeriodId}
+                and thetime = #{thetime}
+                and class_type_id = #{classTypeId}
+                and exam_subject_id = #{examSubjectId}
+                and grade_type = '4'
+    </select>
+
+
+
+    <!--映射-->
+    <resultMap id="findExamParentByNameMap" type="com.cj.witbasics.entity.SchoolExamParent">
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="exam_name" property="examName"/>
+    </resultMap>
+    <!--根据考试名称查询考试父节点信息-->
+    <select id="findExamParentByName" parameterType="java.lang.String" resultMap="findExamParentByNameMap">
+        SELECT *
+        FROM
+        `school_exam_parent`
+        WHERE exam_name = #{examName}
+        LIMIT 1
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findExamBySubNameMap" type="com.cj.witbasics.entity.SchoolExam">
+        <result column="exam_parent_id" property="examParentId"/>
+    </resultMap>
+    <!--查询本次考试当前学段是否参加-->
+    <select id="findExamBySubName" resultMap="findExamBySubNameMap">
+        select exam_parent_id
+        from `school_exam`
+        where school_id = #{schoolId}
+        and year(thetime) = #{thetime}
+        and exam_parent_id = #{examParentId}
+        and state = '1'
+        limit 1
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findPeriodByNameMap" type="com.cj.witbasics.entity.SchoolPeriod">
+        <result column="period_id" property="periodId" />
+        <result column="period_name" property="periodName" />
+    </resultMap>
+    <!--根据学段名称查询学段信息-->
+    <select id="findPeriodByName" resultMap="findPeriodByNameMap">
+        select sp.`period_id`,sp.`period_name`
+        from
+        `school_period` sp
+        where sp.`period_name` = #{periodName}
+        and sp.`state` = '1'
+        and sp.`school_id` = #{schoolId}
+        limit 1
+    </select>
+
+
+
+    <!--映射-->
+    <resultMap id="findThetimeByPeriodIdMap" type="com.cj.witbasics.entity.SchoolPeriodClassThetime">
+        <result column="period_id" property="periodId" />
+        <result column="thetime" property="thetime" />
+    </resultMap>
+    <!--查询学段下是否包含此届次-->
+    <select id="findThetimeByPeriodId" resultMap="findThetimeByPeriodIdMap">
+        select period_id,thetime
+        from `school_period_class_thetime`
+        where school_id = #{schoolId}
+        and period_id = #{periodId}
+        and year(thetime) = #{thetime}
+        and state = '1'
+        limit 1
+    </select>
+
+
+    <!--根据班号查询班级id-->
+    <select id="findClassIdByNum" resultType="java.lang.Integer" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo">
+        SELECT class_id
+        FROM `school_class`
+        WHERE school_id = #{schoolId}
+        AND YEAR(thetime) = #{thetime}
+        AND class_period_id = #{periodId}
+        AND class_number = #{classNumber}
+        AND state = '1'
+        LIMIT 1
+    </select>
+
+    <!--查询本次考试这个班级 考没有考这门课程-->
+    <select id="findExamIdByClassId" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo" resultType="java.lang.Long">
+
+        SELECT exam_id
+        FROM `school_exam` se
+        WHERE se.`school_id` = #{schoolId}
+        AND se.`state` = '1'
+        AND se.`exam_parent_id` = #{examParentId}
+        AND YEAR(se.`thetime`) = #{thetime}
+        AND se.`class_id` = #{classId}
+        AND se.`exam_subject` = #{subjectName}
+    </select>
+
+
+    <!--导入单科参数设置查重（school_exam_grade表）-->
+    <!--映射-->
+    <resultMap id="findSchoolExamGradeImportResultMap" type="com.cj.witscorefind.entity.SchoolExamGrade">
+        <id column="exam_grade_id" property="examGradeId"/>
+        <result column="school_id" property="schoolId"/>
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="exam_id" property="examId"/>
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="thetime" property="thetime"/>
+        <result column="class_type_id" property="classTypeId"/>
+        <result column="class_id" property="classId"/>
+        <result column="exam_subject_id" property="examSubjectId"/>
+        <result column="exam_subject" property="examSubject"/>
+        <result column="grade_type" property="gradeType"/>
+        <result column="founder_id" property="founderId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="operator_id" property="operatorId"/>
+        <result column="delete_time" property="deleteTime"/>
+        <result column="state" property="state"/>
+        <result column="degree" property="degree"/>
+        <result column="advantage_score" property="advantageScore"/>
+    </resultMap>
+    <!--各班单科成绩参数查重-->
+    <select id="findSchoolExamGradeImport" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo" resultMap="findSchoolExamGradeImportResultMap">
+        SELECT *
+        FROM school_exam_grade
+        WHERE class_period_id = #{periodId}
+        AND school_id = #{schoolId}
+        AND thetime = #{thetime}
+        AND class_id = #{classId}
+        AND exam_subject = #{subjectName}
+        AND grade_type = '3'
+        AND state = '1'
+    </select>
+
+
+
+    <!--查询classTypeId  subjectId-->
+    <select id="findClassIdAndSubjectId" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo" resultType="java.util.Map">
+        SELECT se.exam_id,sc.`class_type_id`,ss.`subject_id`
+            FROM school_exam se
+            LEFT JOIN school_class sc
+            ON se.`class_id` = sc.`class_id`
+            AND sc.`state` = '1'
+            AND sc.`school_id` = #{schoolId}
+            LEFT JOIN school_subject ss
+            ON ss.`state` = '1'
+            AND ss.`school_id` = #{schoolId}
+            WHERE se.`class_id` = #{classId}
+            AND se.`state` = '1'
+            AND se.`school_id` = #{schoolId}
+            AND se.`exam_parent_id` = #{examParentId}
+            AND YEAR(se.`thetime`) = #{thetime}
+            AND se.`exam_subject` = #{subjectName}
+            AND ss.`subject_name` = #{subjectName}
+    </select>
+
+    <!--添加grade表名次信息-->
+    <insert id="insertGradeByImportMc" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo">
+    INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min)
+    VALUES (#{examGradeId},#{mcName},'2',#{maxMc},#{minMc})
+    </insert>
+
+
+    <!--添加grade表分数信息-->
+    <insert id="insertGradeByImportScore" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo">
+        INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min,num_score,num_task)
+        VALUES (#{examGradeId},#{scoreName},'1',#{maxScore},#{minScore},#{score},#{task})
+    </insert>
+
+    <!--grade表查重-->
+    <select id="findGrade" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo" resultType="java.lang.Long">
+        select grade_id
+        from `grade`
+        where
+        exam_grade_id = #{examGradeId}
+    </select>
+
+
+    <!--查询exam_grade_id表 主键-->
+    <select id="findExamGradeId" parameterType="com.cj.witscorefind.entity.ImportExamSubInfo" resultType="java.lang.Long">
+        select exam_grade_id
+        from `school_exam_grade`
+        where
+        school_id = #{schoolId}
+        and exam_id = #{examId}
+        and class_period_id = #{periodId}
+        and thetime = #{thetime}
+        and class_id =  #{classId}
+        and exam_subject = #{subjectName}
+        and grade_type = '3'
+        and state = '1'
+    </select>
+
+
+
+    <!--判断班级类型   获取班级类型id-->
+    <select id="findClassTypeIdByName" resultType="java.lang.Integer">
+        SELECT class_type_id
+        FROM `school_class_type`
+        WHERE school_id = #{schoolId}
+        AND classtype_name = #{classType}
+    </select>
+
+
+    <!--总分查重-->
+    <select id="findExamByTotalImpl" parameterType="com.cj.witscorefind.entity.ExamSettingReq" resultMap="findSchoolExamGradeResultMap">
+        select * from school_exam_grade
+        where school_id = #{schoolId}
+        and exam_parent_id = #{examParentId}
+        and class_period_id = #{periodId}
+        and thetime = #{thetime}
+        and class_type_id = #{classTypeId}
+        and grade_type = '1'
+        and state = '1'
+    </select>
+
+    <!--添加grade表名次信息-->
+    <insert id="insertGradeByImportTotalMc" parameterType="com.cj.witscorefind.entity.ImportExamTotalInfo">
+        INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min)
+        VALUES (#{examGradeId},#{mcName},'2',#{maxMc},#{minMc})
+    </insert>
+
+    <!--添加grade表分数信息-->
+    <insert id="insertGradeByImportTotalScore" parameterType="com.cj.witscorefind.entity.ImportExamTotalInfo">
+        INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min,num_score)
+        VALUES (#{examGradeId},#{scoreName},'1',#{maxScore},#{minScore},#{score})
+    </insert>
+
+
+    <!--根据班号查询班级id-->
+    <select id="findClassIdByTotal" resultType="java.lang.Integer" parameterType="com.cj.witscorefind.entity.ImportExamClassTotalTask">
+        SELECT class_id
+        FROM `school_class`
+        WHERE school_id = #{schoolId}
+        AND YEAR(thetime) = #{thetime}
+        AND class_period_id = #{periodId}
+        AND class_number = #{classNumber}
+        AND state = '1'
+        LIMIT 1
+    </select>
+
+
+    <!--获取班级类型id-->
+    <select id="findClassTypeIdByClassId" resultType="java.lang.Integer">
+          SELECT class_type_id
+        FROM `school_class`
+        WHERE school_id = #{schoolId}
+        AND state = '1'
+        AND class_id = #{classId}
+    </select>
+
+
+    <!--查询这个班级的年级总分信息-->
+    <select id="findGradeByTotalImport" parameterType="java.util.Map" resultMap="findGradeByIdResultMap">
+        SELECT g.*
+        FROM `school_exam_grade` seg
+        LEFT JOIN grade g
+        ON seg.`exam_grade_id` = g.`exam_grade_id`
+        AND g.`grade_type` = '1'
+        WHERE seg.`school_id` = #{schoolId}
+        AND seg.`exam_parent_id` = #{schoolExamParent}
+        AND seg.state = '1'
+        AND seg.class_type_id = #{typeId}
+        AND seg.`grade_type` = '1'
+        AND seg.`class_period_id` = #{periodId}
+        AND seg.`thetime` = #{thetime}
+    </select>
+
+
+    <!--根据类型id 查询类型名称-->
+    <select id="findClassTypeNameById" resultType="java.lang.String">
+        select classtype_name
+        from `school_class_type`
+        where school_id = #{schoolId}
+        and class_type_id = #{classTypeId}
+    </select>
+
+
+    <!--班级总分任务数 查重-->
+    <select id="findExamByClassImport" resultMap="findSchoolExamGradeResultMap" parameterType="java.util.Map">
+        SELECT * FROM`school_exam_grade`
+        WHERE school_id = #{schoolId}
+        AND state = '1'
+        AND class_period_id = #{periodId}
+        AND thetime = #{thetime}
+        AND class_type_id = #{typeId}
+        AND class_id = #{classId}
+        AND grade_type = '2'
+    </select>
+
+
+    <!--插入grade信息-->
+    <insert id="insertGradeImport" parameterType="com.cj.witscorefind.entity.Grade">
+        INSERT INTO grade(exam_grade_id,grade_name,grade_type,num_max,num_min,num_score,num_task)
+        VALUES (#{examGradeId},#{scoreName},'1',#{maxScore},#{minScore},#{score},#{task})
+    </insert>
+
+
+    <!--判断这次考试有没有这个课程  获取课程id-->
+    <select id="findSubjectIdByName" parameterType="com.cj.witscorefind.entity.ImportExamOneSubInfo" resultType="java.lang.Long">
+            SELECT exam_subject_id
+            FROM `school_exam`
+            WHERE school_id = #{schoolId}
+            AND state = '1'
+            AND exam_parent_id = #{examParentId}
+            AND YEAR(thetime) = #{thetime}
+            AND exam_subject = #{subjectName}
+            LIMIT 1
+    </select>
+</mapper>

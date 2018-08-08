@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witbasics.mapper.ExportMapper" >
+  <!--人事信息映射-->
+  <resultMap id="BaseResultMap" type="com.cj.witbasics.entity.AdminInfoExport" >
+
+
+    <result column="birth_date" property="birthDate" jdbcType="TIMESTAMP" />
+    <result column="full_name" property="fullName" jdbcType="VARCHAR" />
+    <result column="english_name" property="englishName" jdbcType="VARCHAR" />
+    <result column="staff_number" property="staffNumber" jdbcType="VARCHAR" />
+    <result column="mobile_phone" property="mobilePhone" jdbcType="VARCHAR" />
+    <result column="id_card_no" property="idCardNo" jdbcType="VARCHAR" />
+    <result column="party_time" property="partyTime" jdbcType="VARCHAR" />
+    <result column="political_outlook" property="politicalOutlook" jdbcType="CHAR" />
+    <result column="home_address" property="homeAddress" jdbcType="VARCHAR" />
+    <result column="highest_school_system" property="highestSchoolSystem" jdbcType="VARCHAR" />
+    <result column="overseas_chinese" property="overseasChinese" jdbcType="CHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="residential_telephone" property="residentialTelephone" jdbcType="VARCHAR" />
+    <result column="family_zip_code" property="familyZipCode" jdbcType="VARCHAR" />
+    <result column="name_used_before" property="nameUsedBefore" jdbcType="VARCHAR" />
+    <result column="emergency_contact" property="emergencyContact" jdbcType="VARCHAR" />
+    <result column="nation" property="nation" jdbcType="VARCHAR" />
+    <result column="place_of_origin" property="placeOfOrigin" jdbcType="VARCHAR" />
+    <result column="spoken_english" property="spokenEnglish" jdbcType="VARCHAR" />
+    <result column="spoken_english_date" property="spokenEnglishDate" jdbcType="VARCHAR" />
+    <result column="spoken_english_number" property="spokenEnglishNumber" jdbcType="VARCHAR" />
+    <result column="computer_level" property="computerLevel" jdbcType="VARCHAR" />
+    <result column="computer_level_date" property="computerLevelDate" jdbcType="VARCHAR" />
+    <result column="computer_level_number" property="computerLevelNumber" jdbcType="VARCHAR" />
+    <result column="putonghua_grade" property="putonghuaGrade" jdbcType="VARCHAR" />
+    <result column="putonghua_grade_date" property="putonghuaGradeDate" jdbcType="VARCHAR" />
+    <result column="putonghua_grade_number" property="putonghuaGradeNumber" jdbcType="VARCHAR" />
+    <result column="highest_education" property="highestEducation" jdbcType="CHAR" />
+    <result column="highest_academic_degree" property="highestAcademicDegree" jdbcType="VARCHAR" />
+    <result column="academic_degree_type" property="academicDegreeType" jdbcType="VARCHAR" />
+    <result column="academic_degree_number" property="academicDegreeNumber" jdbcType="VARCHAR" />
+    <result column="highest_graduate_institutions" property="highestGraduateInstitutions" jdbcType="VARCHAR" />
+    <result column="highest_graduate_institutions_date" property="highestGraduateInstitutionsDate" jdbcType="VARCHAR" />
+    <result column="foreign_language" property="foreignLanguage" jdbcType="VARCHAR" />
+    <result column="foreign_language_level" property="foreignLanguageLevel" jdbcType="VARCHAR" />
+    <result column="primary_education" property="primaryEducation" jdbcType="VARCHAR" />
+    <result column="primary_major" property="primaryMajor" jdbcType="VARCHAR" />
+    <result column="primary_school_system" property="primarySchoolSystem" jdbcType="VARCHAR" />
+    <result column="primary_graduate_institutions" property="primaryGraduateInstitutions" jdbcType="VARCHAR" />
+    <result column="primary_graduate_institutions_date" property="primaryGraduateInstitutionsDate" jdbcType="VARCHAR" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+    <result column="the_department" property="theDepartment" jdbcType="VARCHAR" />
+    <result column="office_phone" property="officePhone" jdbcType="VARCHAR" />
+    <result column="master_duties" property="masterDuties" jdbcType="VARCHAR" />
+    <result column="substantive_level" property="substantiveLevel" jdbcType="VARCHAR" />
+    <result column="post_wage" property="postWage" jdbcType="VARCHAR" />
+    <result column="salary_scale" property="salaryScale" jdbcType="VARCHAR" />
+    <result column="post_wage_attach" property="postWageAttach" jdbcType="VARCHAR" />
+    <result column="salary_scale_attach" property="salaryScaleAttach" jdbcType="VARCHAR" />
+    <result column="teaching_subject" property="teachingSubject" jdbcType="VARCHAR" />
+    <result column="expertise_type" property="expertiseType" jdbcType="VARCHAR" />
+    <result column="teaching_level" property="teachingLevel" jdbcType="VARCHAR" />
+    <result column="professional_qualification" property="professionalQualification" jdbcType="VARCHAR" />
+    <result column="time_of_evaluation" property="timeOfEvaluation" jdbcType="VARCHAR" />
+    <result column="detailed_evaluation" property="detailedEvaluation" jdbcType="VARCHAR" />
+    <result column="full_time_teacher" property="fullTimeTeacher" jdbcType="VARCHAR" />
+    <result column="backbone_teacher_level" property="backboneTeacherLevel" jdbcType="VARCHAR" />
+    <result column="backbone_teacher_date" property="backboneTeacherDate" jdbcType="VARCHAR" />
+    <result column="class_headmaster" property="classHeadmaster" jdbcType="CHAR" />
+    <result column="class_headmaster_year" property="classHeadmasterYear" jdbcType="VARCHAR" />
+    <result column="school_campus" property="schoolCampus" jdbcType="VARCHAR" />
+    <result column="identity" property="identity" jdbcType="VARCHAR" />
+    <result column="come_school_date" property="comeSchoolDate" jdbcType="TIMESTAMP" />
+    <result column="school_age" property="schoolAge" jdbcType="VARCHAR" />
+    <result column="participate_work_date" property="participateWorkDate" jdbcType="VARCHAR" />
+    <result column="seniority_age" property="seniorityAge" jdbcType="VARCHAR" />
+    <result column="work_date" property="workDate" jdbcType="VARCHAR" />
+    <result column="continuity_age" property="continuityAge" jdbcType="VARCHAR" />
+    <result column="start_of_the" property="startOfThe" jdbcType="VARCHAR" />
+    <result column="appointment_year" property="appointmentYear" jdbcType="VARCHAR" />
+    <result column="contract_end_time" property="contractEndTime" jdbcType="VARCHAR" />
+    <result column="teaching_section" property="teachingSection" jdbcType="VARCHAR" />
+    <result column="professional_technology" property="professionalTechnology" jdbcType="VARCHAR" />
+    <result column="professional_technology_date" property="professionalTechnologyDate" jdbcType="VARCHAR" />
+    <result column="junior_job_date" property="juniorJobDate" jdbcType="VARCHAR" />
+    <result column="teachers_congress" property="teachersCongress" jdbcType="CHAR" />
+    <result column="camp_family" property="campFamily" jdbcType="CHAR" />
+    <result column="teacher_card_code" property="teacherCardCode" jdbcType="VARCHAR" />
+    <result column="teacher_kind" property="teacherKind" jdbcType="VARCHAR" />
+    <result column="teacher_kind_subject" property="teacherKindSubject" jdbcType="VARCHAR" />
+
+    <result column="is_two_shoulders" property="isTwoShoulders" jdbcType="CHAR" />
+    <result column="staff_source" property="staffSource" jdbcType="VARCHAR" />
+
+  </resultMap>
+
+  <!--学生信息映射-->
+  <resultMap id="selectStudentOsaasMap" type="com.cj.witbasics.entity.StudentExport">
+    <result column="school_number" property="schoolNumber" jdbcType="VARCHAR" />
+    <result column="class_number" property="classNumber" jdbcType="VARCHAR" />
+    <result column="examination_number" property="examinationNumber" jdbcType="VARCHAR" />
+    <result column="register_number" property="registerNumber" jdbcType="VARCHAR" />
+    <result column="full_name" property="fullName" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <!--映射处理  根据id链表查询出name-->
+    <result column="school_name" property="basicIdName" jdbcType="BIGINT" />
+    <result column="period_name" property="periodIdName" jdbcType="BIGINT" />
+    <result column="grade_name" property="gradeIdName" jdbcType="BIGINT" />
+    <result column="class_name" property="classIdName" jdbcType="BIGINT" />
+
+    <result column="birth_date" property="birthDate" jdbcType="TIMESTAMP" />
+    <result column="card_type" property="cardType" jdbcType="VARCHAR" />
+    <result column="card_number" property="cardNumber" jdbcType="VARCHAR" />
+    <result column="education_id" property="educationId" jdbcType="VARCHAR" />
+    <result column="national_register_number" property="nationalRegisterNumber" jdbcType="VARCHAR" />
+    <result column="different_countries" property="differentCountries" jdbcType="VARCHAR" />
+    <result column="hong_kong" property="hongKong" jdbcType="VARCHAR" />
+    <result column="registered_residence" property="registeredResidence" jdbcType="VARCHAR" />
+    <result column="registered_residence_detailed" property="registeredResidenceDetailed" jdbcType="VARCHAR" />
+    <result column="political_outlook" property="politicalOutlook" jdbcType="VARCHAR" />
+    <result column="nation" property="nation" jdbcType="VARCHAR" />
+    <result column="student_type" property="studentType" jdbcType="VARCHAR" />
+    <result column="way_of_studying" property="wayOfStudying" jdbcType="VARCHAR" />
+    <result column="treat_type" property="treatType" jdbcType="VARCHAR" />
+    <result column="present_address" property="presentAddress" jdbcType="VARCHAR" />
+    <result column="home_address" property="homeAddress" jdbcType="VARCHAR" />
+    <result column="home_address_detailed" property="homeAddressDetailed" jdbcType="VARCHAR" />
+    <result column="postal_address" property="postalAddress" jdbcType="VARCHAR" />
+    <result column="native_heath" property="nativeHeath" jdbcType="VARCHAR" />
+    <result column="place_of_origin" property="placeOfOrigin" jdbcType="VARCHAR" />
+    <result column="health_condition" property="healthCondition" jdbcType="VARCHAR" />
+    <result column="household_registration" property="householdRegistration" jdbcType="VARCHAR" />
+    <result column="mobile_phone" property="mobilePhone" jdbcType="VARCHAR" />
+    <result column="zip_code" property="zipCode" jdbcType="VARCHAR" />
+    <result column="anaphylaxis" property="anaphylaxis" jdbcType="VARCHAR" />
+    <result column="past_medical_history" property="pastMedicalHistory" jdbcType="VARCHAR" />
+    <result column="one_child" property="oneChild" jdbcType="VARCHAR" />
+    <result column="military_region" property="militaryRegion" jdbcType="VARCHAR" />
+    <result column="preschool_education" property="preschoolEducation" jdbcType="VARCHAR" />
+    <result column="left_behind_children" property="leftBehindChildren" jdbcType="VARCHAR" />
+    <result column="work_for_children" property="workForChildren" jdbcType="VARCHAR" />
+    <result column="name_pinyin" property="namePinyin" jdbcType="VARCHAR" />
+    <result column="english_name" property="englishName" jdbcType="VARCHAR" />
+    <result column="this_city_osaas" property="thisCityOsaas" jdbcType="VARCHAR" />
+    <result column="enrolment_category" property="enrolmentCategory" jdbcType="VARCHAR" />
+    <result column="enrolment_mode" property="enrolmentMode" jdbcType="VARCHAR" />
+    <result column="student_source" property="studentSource" jdbcType="VARCHAR" />
+    <result column="date_of_admission" property="dateOfAdmission" jdbcType="TIMESTAMP" />
+    <result column="students_come_in" property="studentsComeIn" jdbcType="VARCHAR" />
+    <result column="original_school" property="originalSchool" jdbcType="VARCHAR" />
+    <result column="register_assist_number" property="registerAssistNumber" jdbcType="VARCHAR" />
+    <result column="learning_in_class" property="learningInClass" jdbcType="VARCHAR" />
+    <result column="student_state" property="studentState" jdbcType="VARCHAR" />
+    <result column="is_disability" property="isDisability" jdbcType="VARCHAR" />
+    <result column="domicile" property="domicile" jdbcType="VARCHAR" />
+    <result column="orphan" property="orphan" jdbcType="VARCHAR" />
+    <result column="martyr_child" property="martyrChild" jdbcType="VARCHAR" />
+    <result column="is_subsidy" property="isSubsidy" jdbcType="VARCHAR" />
+    <result column="need_subsidy" property="needSubsidy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    admin_info_id, admin_id, admin_nick, admin_uuid, admin_head, birth_date, full_name,
+    english_name, staff_number, mobile_phone, id_card_no, party_time, political_outlook,
+    mail_box, home_address, highest_school_system, overseas_chinese, gender, residential_telephone,
+    family_zip_code, name_used_before, emergency_contact, nation, place_of_origin, spoken_english,
+    spoken_english_date, spoken_english_number, computer_level, computer_level_date,
+    computer_level_number, putonghua_grade, putonghua_grade_date, putonghua_grade_number,
+    highest_education, highest_major, highest_academic_degree, academic_degree_type,
+    academic_degree_number, highest_graduate_institutions, highest_graduate_institutions_date,
+    foreign_language, foreign_language_level, primary_education, primary_major, primary_school_system,
+    primary_graduate_institutions, primary_graduate_institutions_date, marriage, remarks,
+    the_department, office_phone, master_duties, attach_duties, teaching_and_research,
+    substantive_level, post_wage, salary_scale, post_wage_attach, salary_scale_attach,
+    teaching_subject, expertise_type, teaching_level, professional_qualification, time_of_evaluation,
+    detailed_evaluation, full_time_teacher, backbone_teacher_level, backbone_teacher_date,
+    class_headmaster, class_headmaster_year, school_id, school_campus, identity, come_school_date,
+    school_age, participate_work_date, seniority_age, work_date, continuity_age, start_of_the,
+    appointment_year, contract_end_time, groupings, teaching_section, no_time_learning,
+    deduction_of_work, deduction_of_work_reason, be_engaged, grade_group, grade_group_code,
+    professional_technology, professional_technology_date, employment, employment_date,
+    junior_job, junior_job_date, teachers_congress, camp_family, teacher_card_code, teacher_kind,
+    teacher_kind_subject, mental_health_level, teacher_winning_type, teacher_winning_date,
+    teacher_winning_content, academic_work, academic_work_date, work_experience, week_class,
+    annual_assessment, the_assessment, skill_certificate, committee_member, record_of_teacher_work,
+    founder_id, create_time, operator_id, delete_time, state, is_two_shoulders, staff_source
+    post,post_attach </sql>
+
+  <!--角色信息映射-->
+  <resultMap id="selectAdminRoleMap" type="com.cj.witbasics.entity.AdminRoleExport">
+    <result column="id" property="id"/>
+    <result column="role_name" property="roleName"/>
+    <result column="type" property="type"/>
+    <result column="state" property="state"/>
+    <result column="create_time" property="createTime"/>
+  </resultMap>
+
+  <!--查询人事信息 对应导出模板-->
+  <select id="selectAdminInfo" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    FROM
+    admin_info
+  </select>
+
+  <!--查询角色信息 对应导出模板-->
+  <select id="selectAdminRole" resultMap="selectAdminRoleMap">
+    SELECT *
+    FROM admin_role
+  </select>
+
+  <!--查询学生信息 对应导出模板-->
+  <select id="selectStudentOsaas" resultMap="selectStudentOsaasMap">
+    SELECT so.*, sp.period_name,sb.school_name,sg.grade_name,sc.class_name
+    FROM student_osaas so
+    LEFT JOIN school_period sp ON so.period_id = sp.period_id
+    LEFT JOIN school_basic sb ON so.basic_id = sb.school_id
+    LEFT JOIN school_grade sg ON so.grade_id = sg.grade_id
+    LEFT JOIN school_class sc ON so.class_id = sc.class_id
+  </select>
+</mapper>

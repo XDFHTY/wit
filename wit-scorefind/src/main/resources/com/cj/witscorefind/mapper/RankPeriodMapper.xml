@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.RankPeriodMapper" >
+
+
+    <!--映射-->
+    <resultMap id="findTotalScoresMap" type="com.cj.witscorefind.entity.ShortlistedScore">
+        <result column="class_id" property="classId"/>
+        <result column="class_number" property="classNumber"/>
+        <collection property="scores" javaType="ArrayList" ofType="com.cj.witbasics.entity.StudentScore">
+            <result column="register_number" property="registerNumber"/>
+            <result column="total" property="score"/>
+            <result column="exam_sort" property="gradeRanking"/>
+        </collection>
+    </resultMap>
+    <!--查询各班每个人的总分和排名-->
+    <select id="findTotalScores" resultMap="findTotalScoresMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT
+        a.*,
+        (
+        CASE
+        WHEN @subject_id = class_id
+        THEN @curRow := @curRow + 1
+        ELSE @curRow := @curRow + 1
+
+        END
+        ) AS exam_sort
+        FROM
+        (SELECT
+        @curRow := 0,
+        @subject_id := '') AS b,
+        (
+        SELECT
+        ss.`class_id`,ss.`register_number`,SUM(ss.`score`) AS total,sc.class_number
+        FROM
+        student_score ss
+        LEFT JOIN `school_class` sc
+        ON ss.`class_id` = sc.`class_id`
+        AND sc.`school_id` = #{parameters.schoolId}
+        AND sc.`state` = '1'
+        WHERE ss.`school_id` = #{parameters.schoolId}
+        AND ss.`state` = '1'
+        AND ss.`exam_parent_id` = #{parameters.examParentId}
+        AND YEAR(ss.`thetime`) =  #{parameters.thetime}
+
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND ss.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+
+        GROUP BY ss.`register_number`
+        ORDER BY total DESC,
+        ss.`register_number`
+        ) AS a
+
+
+
+
+    </select>
+
+    <!--映射-->
+    <resultMap id="findScoresMap" type="com.cj.witscorefind.entity.ShortlistedScore">
+        <result column="class_id" property="classId"/>
+        <result column="class_number" property="classNumber"/>
+        <collection property="subScores" javaType="ArrayList" ofType="com.cj.witscorefind.entity.SubScore">
+            <result column="school_subject_id" property="subjectId"/>
+            <result column="subject_name" property="subName"/>
+            <collection property="scores" javaType="ArrayList" ofType="com.cj.witbasics.entity.StudentScore">
+                <result column="score" property="score"/>
+                <result column="register_number" property="registerNumber"/>
+                <result column="exam_sort" property="gradeRanking"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <!--查询各班单学科每个人的成绩-->
+    <select id="findScores" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findScoresMap">
+
+        SELECT
+        a.*,
+        (
+        CASE
+        WHEN @subject_id = class_id
+        THEN @curRow := @curRow + 1
+        ELSE @curRow := @curRow + 1
+
+        END
+        ) AS exam_sort
+        FROM
+        (SELECT
+        @curRow := 0,
+        @subject_id := '') AS b,
+        (
+        select ss.`class_id`,ss2.`subject_name`,ss.`school_subject_id`,ss.`register_number`,ss.`score`,sc.class_number
+        from `student_score` ss
+        left join `school_class` sc
+        on ss.`class_id` = sc.`class_id`
+        and sc.`school_id` = #{parameters.schoolId}
+        and sc.`state` = '1'
+        LEFT JOIN `school_subject` ss2
+        ON ss.`school_subject_id` = ss2.`subject_id`
+        AND ss2.`state` = '1'
+        where ss.`school_id` = #{parameters.schoolId}
+        and ss.`exam_parent_id` = #{parameters.examParentId}
+        and year(ss.`thetime`) =#{parameters.thetime}
+        and ss.`state` = '1'
+
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND ss.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+
+
+        <if test="parameters.containsKey('curriculumId')">
+            AND ss.`school_subject_id` = #{parameters.curriculumId}
+        </if>
+
+        order by score desc,
+        ss.`register_number`
+        ) AS a
+
+    </select>
+
+
+</mapper>

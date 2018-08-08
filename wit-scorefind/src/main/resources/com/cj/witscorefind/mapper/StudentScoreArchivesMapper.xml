@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.StudentScoreArchivesMapper" >
+
+    <resultMap id="ExamStudentScore" type="com.cj.witscorefind.entity.SchoolExamParents">
+        <result column="exam_parent_id" property="examParentId"></result>
+        <result column="exam_name" property="examName"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="t_register_number" property="registerNumber"></result>
+        <result column="t_subject_name" property="subjectName"></result>
+        <result column="total_score" property="totalScore"></result>
+        <collection property="examSubjectScores" ofType="com.cj.witscorefind.entity.ExamSubjectScore">
+            <result column="register_number" property="registerNumber"></result>
+            <result column="school_subject_id" property="subjectId"></result>
+            <result column="subject_name" property="subjectName"></result>
+            <result column="score" property="score"></result>
+        </collection>
+    </resultMap>
+    <!--查询学生历次考试总分成绩-->
+    <select id="findExamsStudentTotalScore" parameterType="java.util.Map" resultMap="ExamStudentScore">
+        SELECT
+        sep.`exam_parent_id`, sep.exam_name ,sep.create_time ,
+        ss.`register_number` AS t_register_number,@name AS t_subject_name,SUM(ss.`score`) AS total_score
+        FROM
+        (SELECT @name := '总分') AS a,
+        student_score ss
+        LEFT JOIN school_exam_parent sep ON sep.`exam_parent_id` = ss.`exam_parent_id`
+        LEFT JOIN school_subject su ON su.`subject_id` = ss.`school_subject_id`
+        WHERE
+        ss.exam_parent_id IN
+        <foreach collection="examParentIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        AND
+        ss.`register_number` = #{registerNumber}
+        GROUP BY ss.`exam_parent_id`
+    </select>
+
+
+    <!--学生历次考试各科成绩-->
+    <select id="findExamsStudentSubjectScore" parameterType="java.util.Map" resultMap="ExamStudentScore">
+        SELECT
+        sep.`exam_parent_id`,sep.exam_name ,sep.create_time,
+        ss.`register_number`,ss.`school_subject_id`,su.`subject_name`,ss.`score`
+        FROM
+
+        student_score ss
+        LEFT JOIN school_exam_parent sep ON sep.`exam_parent_id` = ss.`exam_parent_id`
+        LEFT JOIN school_subject su ON su.`subject_id` = ss.`school_subject_id`
+        WHERE
+        ss.`exam_parent_id` IN
+        <foreach collection="examParentIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        AND
+        ss.`register_number` = #{registerNumber}
+
+    </select>
+
+
+    <!--根据学籍号查询学生姓名-->
+    <select id="findFullNameByRegisterNumber" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        so.full_name
+        FROM
+        student_osaas so
+        WHERE
+        so.register_number = #{registerNumber}
+    </select>
+
+
+    <!--查询该生 学段 班级-->
+    <select id="findPeriodNameAndClassName" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT sp.`period_name`,sc.`class_name`
+            FROM `student_osaas` so
+            LEFT JOIN `school_period` sp
+            ON so.`period_id` = sp.`period_id`
+            LEFT JOIN `school_class` sc
+            ON so.`class_id` = sc.`class_id`
+            WHERE so.`register_number` = #{registerNumber}
+    </select>
+
+
+</mapper>

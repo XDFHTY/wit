@@ -1,0 +1,1114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.AverageMapper" >
+
+  <!--查询平均分映射-->
+  <resultMap id="findAverageInfoByClassIdResultMap" type="com.cj.witscorefind.entity.AverageRsp">
+    <!--<result column="exam_parent_id" property="examParentId"/>-->
+    <result column="class_period_id" property="classPeriodId"></result>
+    <result column="class_period" property="classPeriod"></result>
+    <result column="thetime" property="thetime"></result>
+    <result column="class_id" property="classId"></result>
+    <result column="class_name" property="className"></result>
+    <result column="class_headmaster" property="classHeadmaster"></result>
+    <result column="subject_id" property="subjectId"></result>
+    <result column="subject_name" property="subjectName"></result>
+    <result column="full_name" property="fullName"></result>
+    <result column="actually_come" property="actuallyCome"></result>
+    <result column="avg_score" property="avgScore"></result>
+    <result column="min_score" property="minScore"></result>
+    <result column="max_score" property="maxScore"></result>
+    <result column="exam_sort" property="examSort"></result>
+    <result column="notCome" property="not_come"></result>
+    <result column="degree" property="degree"></result>
+  </resultMap>
+
+  <!--总数映射-->
+  <resultMap id="findAverageTotalResultMap" type="java.util.Map">
+    <result column="total" property="total"></result>
+  </resultMap>
+
+  <!--年级平均分情况映射-->
+  <resultMap id="findAverageByGradeResultMap" type="com.cj.witscorefind.entity.AverageRsp">
+    <result column="exam_parent_id" property="examParentId"/>
+    <result column="class_period_id" property="classPeriodId"></result>
+    <result column="class_period" property="classPeriod"></result>
+    <result column="thetime" property="thetime"></result>
+    <result column="subject_id" property="subjectId"></result>
+    <result column="subject_name" property="subjectName"></result>
+    <result column="actually_come" property="actuallyCome"></result>
+    <result column="avg_score" property="avgScore"></result>
+    <result column="min_score" property="minScore"></result>
+    <result column="max_score" property="maxScore"></result>
+  </resultMap>
+  <!--查询年级平均分信息 分页-->
+  <select id="findAverageInfo" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findAverageInfoByClassIdResultMap,findAverageTotalResultMap">
+
+    SELECT
+    SQL_CALC_FOUND_ROWS aa.*,
+    ai.`full_name`
+    FROM
+    (SELECT
+    a.*,
+    (
+    CASE
+    WHEN @subject_id = subject_id
+    THEN @curRow := @curRow + 1
+    ELSE @curRow := 1
+    AND @subject_id := subject_id
+    END
+    ) AS exam_sort
+    FROM
+    (SELECT
+    @curRow := 0,
+    @subject_id := '') AS b,
+    (SELECT
+    sc.class_period_id,
+    sc.class_period,
+    DATE_FORMAT(sc.thetime, '%Y') AS thetime,
+    sc.class_id,
+    sc.class_name,
+    sc.`class_type_id`,
+    sc.class_type,
+    su.subject_id,
+    su.subject_name,
+    sc.class_headmaster,
+    COUNT(IF(ss.score > 0, TRUE, NULL)) AS actually_come,
+    COUNT(IF(ss.score = 0, TRUE, NULL)) AS not_come,
+    AVG(ss.score) AS avg_score,
+    MIN(ss.score) AS min_score,
+    MAX(ss.score) AS max_score,
+    seg.`degree`
+    FROM
+    student_score AS ss
+    LEFT JOIN school_class AS sc
+    ON ss.class_id = sc.class_id
+    LEFT JOIN school_subject AS su
+    ON ss.school_subject_id = su.subject_id
+    LEFT JOIN school_exam_grade seg
+    ON ss.`class_id` = seg.`class_id`
+    AND ss.`school_subject_id` = seg.`exam_subject_id`
+    WHERE ss.exam_parent_id = #{parameters.examParentId}
+    AND sc.school_id = #{parameters.schoolId}
+    AND sc.`class_level_id` = #{parameters.classLevelId}
+
+    and sc.`class_type_id` = #{parameters.classTypeId}
+    AND YEAR(ss.`thetime`) = #{parameters.thetime}
+    AND sc.`class_period_id` = #{parameters.periodId}
+    AND sc.state != '0'
+    GROUP BY class_period_id,
+    thetime,
+    subject_id,
+    class_id
+    ORDER BY class_period_id,
+    thetime,
+    subject_id,
+    AVG(ss.score) DESC) AS a) AS aa
+    LEFT JOIN class_subject_info csi
+    ON csi.`subject_id` = aa.subject_id
+    AND csi.`class_id` = aa.`class_id`
+    LEFT JOIN admin_info ai
+    ON ai.`admin_id` = csi.`admin_id`
+    WHERE 1 = 1
+
+    <if test="parameters.containsKey('classIdList')">
+      AND aa.class_id IN
+      <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+        #{classId}
+      </foreach>
+    </if>
+    <if test="parameters.containsKey('classId')">
+      AND aa.class_id = #{parameters.classId}
+    </if>
+
+    <if test="parameters.containsKey('curriculumIdList')">
+      AND aa.subject_id IN
+      <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+        #{curriculumId}
+      </foreach>
+    </if>
+
+    limit #{minRow},#{maxRow};
+    SELECT FOUND_ROWS() AS total;
+
+
+
+
+  </select>
+
+  <!--查询平均分 计数-->
+  <select id="findAverageInfoCount" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultType="java.lang.Integer">
+
+    SELECT count(*)
+    FROM (
+    SELECT
+    aa.*
+    FROM
+    (
+    SELECT a.*,
+    (
+    CASE WHEN @subject_id = subject_id
+    THEN @curRow := @curRow+1
+    ELSE @curRow := 1 AND @subject_id := subject_id
+    END
+    ) AS exam_sort
+    FROM
+    (
+    SELECT
+    sc.`class_period_id`,sc.`class_period`,DATE_FORMAT(sc.`thetime`,'%Y') AS thetime, sc.class_id, sc.class_name,
+    sc.`class_level_id`,sc.`class_level`,sc.`class_type_id`,sc.`class_type`,
+    sc.class_headmaster,su.subject_id, su.subject_name,ai.full_name,
+    COUNT(IF(ss.score>0,TRUE,NULL)) AS actually_come,
+    AVG(ss.score) AS avg_score,
+    MIN(ss.score) AS min_score,
+    MAX(ss.score)AS max_score
+    FROM
+    student_score AS ss
+    LEFT JOIN school_class AS sc ON ss.class_id = sc.class_id
+    LEFT JOIN school_subject AS su ON ss.school_subject_id = su.subject_id
+    LEFT JOIN class_subject_info csi ON ss.class_id = csi.class_id AND ss.school_subject_id = csi.subject_id
+    LEFT JOIN admin_info ai ON csi.admin_id = ai.admin_id
+    AND
+    sc.state != '0'
+    WHERE
+    ss.exam_parent_id = #{parameters.examParentId}
+    AND YEAR(ss.thetime) = #{parameters.thetime}
+    AND sc.class_period_id = #{parameters.periodId}
+    <if test="parameters != null">
+      <if test="parameters.containsKey('schoolId')">
+        AND sc.school_id = #{parameters.schoolId}
+      </if>
+    </if>
+    GROUP BY subject_id ,class_id
+    ORDER BY subject_id , AVG(ss.score) DESC
+    ) AS a,
+    (SELECT @curRow:=0,@subject_id:='') AS b
+    )
+    AS aa
+    WHERE 1 = 1
+    <if test="parameters != null">
+      <if test="parameters.containsKey('curriculumIdList')">
+        AND aa.subject_id IN
+        <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+          #{curriculumId}
+        </foreach>
+      </if>
+      <if test="parameters.containsKey('classIdList')">
+        AND aa.class_id IN
+        <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+          #{classId}
+        </foreach>
+      </if>
+      <if test="parameters.containsKey('classTypeId')">
+        AND aa.class_type_id = #{parameters.classTypeId}
+      </if>
+      <if test="parameters.containsKey('classLevelId')">
+        AND aa.class_level_id = #{parameters.classLevelId}
+      </if>
+    </if>
+    ) as aaa
+
+  </select>
+
+  <!--按课程查询该次考试 年级平均分情况-->
+  <select id="findAverageByGrade" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findAverageByGradeResultMap">
+    SELECT
+  ss.exam_parent_id,
+  sc.`class_period_id`,
+  sc.`class_period`,
+  DATE_FORMAT(sc.`thetime`, '%Y') AS thetime,
+  su.subject_id,
+  su.subject_name,
+  COUNT(IF(ss.score > 0, TRUE, NULL)) AS actually_come,
+  AVG(ss.score) AS avg_score,
+  MIN(ss.score) AS min_score,
+  MAX(ss.score) AS max_score
+FROM
+  student_score AS ss
+  LEFT JOIN school_class AS sc
+    ON ss.class_id = sc.class_id
+  LEFT JOIN school_subject AS su
+    ON ss.school_subject_id = su.subject_id
+    AND sc.state != '0'
+
+    <if test="parameters != null">
+      WHERE ss.exam_parent_id = #{parameters.examParentId}
+      AND YEAR(ss.thetime) = #{parameters.thetime}
+      AND sc.class_period_id = #{parameters.periodId}
+      <if test="parameters != null">
+        <if test="parameters.containsKey('schoolId')">
+          AND sc.school_id = #{parameters.schoolId}
+        </if>
+      </if>
+      <if test="parameters.containsKey('curriculumIdList')">
+        AND ss.`school_subject_id` IN
+        <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+          #{curriculumId}
+        </foreach>
+      </if>
+    </if>
+  GROUP BY ss.`school_subject_id`
+  </select>
+
+  <!--返回班级列表 映射-->
+  <resultMap id="schoolClassInfo" type="com.cj.witcommon.entity.SchoolClassInfo">
+    <result column="class_id" property="classId"/>
+    <result column="class_name" property="className"/>
+    <result column="class_headmaster_id" property="classHeadmasterId"/>
+    <result column="class_headmaster" property="classHeadmaster"/>
+    <result column="class_number" property="classNumber"/>
+    <result column="class_year" property="classYear"/>
+    <result column="thetime" property="thetime"/>
+    <result column="class_period_id" property="classPeriodId"/>
+    <result column="class_period" property="classPeriod"/>
+    <result column="class_abbreviation" property="classAbbreviation" jdbcType="VARCHAR" />
+    <result column="class_campus" property="classCampus" jdbcType="VARCHAR" />
+    <result column="class_type_id" property="classTypeId" jdbcType="INTEGER" />
+    <result column="class_type" property="classType" jdbcType="VARCHAR" />
+    <result column="class_level_id" property="classLevelId" jdbcType="INTEGER" />
+    <result column="classlevel_name" property="classLevel" jdbcType="VARCHAR" />
+    <!--<collection property="subject" ofType="com.cj.witcommon.entity.SubjectForTea" select="getSubjectInfo" column="class_id">
+    </collection>-->
+  </resultMap>
+ <!--根据届次id 学段 层次id 返回班级列表-->
+  <select id="findClassByLevel" parameterType="java.util.Map" resultMap="schoolClassInfo">
+    SELECT cs.*,scl.`classlevel_name`
+      FROM school_class cs
+      LEFT JOIN school_class_level scl ON cs.`class_level_id` = scl.`class_level_id`
+      WHERE cs.school_id = #{schoolId}
+      AND YEAR(cs.thetime) = #{thetime}
+      AND cs.class_period_id = #{periodId}
+      AND cs.`class_type_id` = #{classTypeId}
+      AND  cs.class_level_id = #{classLevelId}
+     <!-- AND cs.class_level_id in
+    <foreach collection="classLevelIdList" item="classLevelId" open="(" close=")" separator=",">
+      #{classLevelId}
+    </foreach>-->
+  </select>
+
+  <!--查询班级总分情况映射-->
+  <resultMap id="averageTotalResultMap" type="com.cj.witscorefind.entity.AverageRsp">
+    <result column="class_id" property="classId"/>
+    <result column="class_name" property="className"/>
+    <result column="exam_parent_id" property="examParentId"/>
+    <result column="class_period_id" property="classPeriodId"/>
+    <result column="class_period" property="classPeriod"/>
+    <result column="thetime" property="thetime"/>
+    <result column="zf_min" property="minScore"/>
+    <result column="zf_max" property="maxScore"/>
+    <result column="zf_avg" property="avgScore"/>
+    <result column="exam_sort" property="examSort"/>
+      <result column="class_number" property="classNumber"/>
+  </resultMap>
+  <!--查询班级总分情况-->
+  <select id="averageTotal" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="averageTotalResultMap">
+      SELECT aaa.*
+      FROM
+      (
+      SELECT
+      aa.*,
+      (
+      CASE
+      WHEN @subject_id = class_level_id
+      THEN @curRow := @curRow + 1
+      ELSE @curRow := 1
+      AND @subject_id := class_level_id
+      END
+      ) AS exam_sort
+      FROM
+      (SELECT
+      @curRow := 0,
+      @subject_id := '') AS b,
+
+      (
+      SELECT
+      a. class_id,
+      a.class_name,
+      a.class_level_id,
+      a.class_number,
+      a.exam_parent_id,
+      a.class_period_id,
+      a.class_period,
+      a.thetime,
+      MIN(a.sum_score) AS zf_min,
+      MAX(a.sum_score) AS zf_max,
+      AVG(a.sum_score) AS zf_avg,
+      a.degree
+      FROM
+      (
+      SELECT
+      ss.`class_id`,
+      sc.`class_name`,
+      sc.class_number,
+      sc.`class_level_id`,
+      ss.exam_parent_id,
+      sc.`class_period_id`,
+      sc.`class_period`,
+      DATE_FORMAT(sc.`thetime`, '%Y') AS thetime,
+
+      MIN(ss.score) AS min_score,
+      MAX(ss.score) AS max_score,
+      SUM(ss.score) AS sum_score,
+      seg.`degree`
+      FROM
+      student_score AS ss
+      LEFT JOIN school_class AS sc
+      ON ss.class_id = sc.class_id
+      LEFT JOIN school_subject AS su
+      ON ss.school_subject_id = su.subject_id
+      AND sc.state = '1'
+      AND ss.`score` = '1'
+      LEFT JOIN `school_exam_grade` AS seg
+      ON sc.`school_id` = seg.`school_id`
+      AND ss.`exam_parent_id` = seg.`exam_parent_id`
+      AND sc.`class_period_id` = seg.`class_period_id`
+      AND YEAR(ss.`thetime`) = seg.`thetime`
+      AND seg.`state` = '1'
+      AND seg.`grade_type` = '1'
+      AND seg.`class_type_id` = #{parameters.classTypeId}
+
+      WHERE ss.exam_parent_id = #{parameters.examParentId}
+      AND YEAR(ss.thetime) = #{parameters.thetime}
+      AND sc.class_period_id = #{parameters.periodId}
+      AND sc.school_id = #{parameters.schoolId}
+      AND sc.`class_type_id` = #{parameters.classTypeId}
+
+      <if test="parameters.containsKey('notComes') and parameters.notComes.size != 0">
+          AND ss.`register_number` NOT IN
+          <foreach collection="parameters.notComes" item="notCome" open="(" close=")" separator=",">
+              #{notCome}
+          </foreach>
+      </if>
+      GROUP BY ss.`class_id`,ss.`register_number`
+      )AS a
+      GROUP BY a.`class_id`
+      ORDER BY a.class_level_id,zf_avg DESC
+
+      )AS aa
+      )AS aaa
+      WHERE 1 = 1
+      <if test="parameters.containsKey('classIdList')">
+          AND aaa.class_id IN
+          <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+              #{classId}
+          </foreach>
+      </if>
+      <if test="parameters.containsKey('classLevelIdList')">
+          AND aaa.`class_level_id` IN
+          <foreach collection="parameters.classLevelIdList" item="classLevelId" open="(" close=")" separator=",">
+              #{classLevelId}
+          </foreach>
+      </if>
+  </select>
+
+  <!--查询总分平均分映射-->
+  <resultMap id="findTotalAvgResultMap" type="com.cj.witscorefind.entity.AverageRsp">
+    <result column="class_id" property="classId"/>
+    <result column="class_name" property="className"/>
+    <result column="class_level_id" property="classLevelId"/>
+    <result column="class_level" property="classLevel"/>
+    <result column="class_type_id" property="classTypeId"/>
+    <result column="class_period_id" property="classPeriodId"/>
+    <result column="class_period" property="classPeriod"/>
+    <result column="exam_parent_id" property="examParentId"/>
+    <result column="thetime" property="thetime"/>
+    <result column="class_type" property="classType"/>
+    <result column="avg_score" property="avgScore"/>
+    <result column="max_score" property="maxScore"/>
+      <result column="min_score" property="minScore"/>
+    <result column="exam_sort" property="examSort"/>
+    <result column="degree" property="degree"/>
+      <result column="actually_come" property="actuallyCome"/>
+      <result column="not_come" property="notCome"/>
+      <result column="class_headmaster" property="classHeadmaster"/>
+  </resultMap>
+  <!--查询总分平均分情况，全部课程总分-->
+  <select id="findTotalAvg" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findTotalAvgResultMap,findAverageTotalResultMap">
+
+
+      SELECT SQL_CALC_FOUND_ROWS aaaa.*
+      FROM
+      (
+      SELECT aaa.*,
+      (
+      CASE WHEN @subject_id = class_id
+      THEN @curRow := @curRow+1
+      ELSE @curRow := @curRow+1
+      END
+      ) AS exam_sort
+      FROM
+      (
+      SELECT aa.*
+      FROM
+      (
+      SELECT a.class_id,a.class_name,a.`class_headmaster`,a.`class_level_id`,a.`class_level`,a.`class_type_id`,
+      a.`class_period_id`,a.`class_period`,a.`exam_parent_id`,a.`thetime`,
+      a.`class_type`,AVG(a.score) AS avg_score,MAX(a.score) AS max_score,MIN(a.score) as min_score,a.degree,COUNT(IF(a.score > 0, TRUE, NULL)) AS actually_come, COUNT(IF(a.score=0,TRUE,NULL))  AS not_come
+      FROM
+      (
+      SELECT
+      ss.`class_id`,sc.`class_name`,sc.`class_headmaster`,
+      sc.`class_level_id`,sc.`class_level`,sc.`class_type_id`,sc.`class_type`,
+      sc.`class_period_id`,sc.`class_period`,ss.`exam_parent_id`,ss.`thetime`,
+      ss.`student_name`,SUM(ss.`score`) AS score,seg.`degree`
+      FROM student_score ss
+      LEFT JOIN school_class sc ON ss.`class_id` = sc.`class_id`
+      LEFT JOIN school_exam_grade seg ON ss.`school_id` = seg.`school_id` AND ss.`exam_parent_id` = seg.`exam_parent_id`
+      AND sc.`class_period_id` = seg.`class_period_id` AND YEAR(ss.`thetime`) = seg.`thetime` AND sc.`class_id` = seg.`class_id`
+      AND sc.`class_type_id` = seg.`class_type_id` AND seg.`state` = '1' AND seg.`grade_type` = '1'
+      WHERE  sc.`state` != 0
+      and ss.`exam_parent_id` = #{parameters.examParentId}
+      and ss.`school_id` = #{parameters.schoolId}
+      and year(ss.`thetime`) =  #{parameters.thetime}
+      and sc.`class_period_id` = #{parameters.periodId}
+      and sc.`class_type_id` = #{parameters.classTypeId}
+      and sc.`class_level_id` = #{parameters.classLevelId}
+      GROUP BY ss.`register_number`
+      ) AS a
+      GROUP BY a.class_id
+      ) AS aa
+      ORDER BY aa.avg_score DESC
+      )AS aaa,
+      (SELECT @curRow:=0) AS b
+      ) AS aaaa
+      WHERE 1 = 1
+
+      <if test="parameters.containsKey('classIdList')">
+          AND aaaa.class_id IN
+          <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+              #{classId}
+          </foreach>
+      </if>
+
+      limit #{minRow},#{maxRow};
+      SELECT FOUND_ROWS() AS total;
+
+
+
+
+  </select>
+
+    <!--查询年级总分平均分 映射-->
+    <resultMap id="findTotalAvgByGradeResultMap" type="com.cj.witscorefind.entity.AverageRsp">
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="class_period" property="classPeriod"/>
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="thetime" property="thetime"/>
+        <result column="avg_score" property="avgScore"/>
+        <result column="max_score" property="maxScore"/>
+        <result column="min_score" property="minScore"/>
+        <result column="degree" property="degree"/>
+        <result column="actually_come" property="actuallyCome"/>
+        <result column="not_come" property="notCome"/>
+    </resultMap>
+    <!--查询年级总分平均分情况-->
+    <select id="findTotalAvgByGrade" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findTotalAvgByGradeResultMap">
+
+        SELECT aa.*
+        FROM
+        (
+    SELECT
+    a.`class_period_id`,a.`class_period`,a.`exam_parent_id`,a.`thetime`,
+    AVG(a.score) AS avg_score,MAX(a.score) AS max_score,MIN(a.score) AS min_score,a.degree,
+    COUNT(IF(a.score > 0, TRUE, NULL)) AS actually_come, COUNT(IF(a.score=0,TRUE,NULL))  AS not_come
+        FROM
+        (
+        SELECT
+    ss.`class_id`,sc.`class_name`,
+    sc.`class_level_id`,sc.`class_level`,sc.`class_type_id`,sc.`class_type`,
+    sc.`class_period_id`,sc.`class_period`,ss.`exam_parent_id`,ss.`thetime`,
+    ss.`student_name`,SUM(ss.`score`) AS score,seg.`degree`
+        FROM student_score ss
+        LEFT JOIN school_class sc ON ss.`class_id` = sc.`class_id`
+        LEFT JOIN school_exam_grade seg ON ss.`school_id` = seg.`school_id` AND ss.`exam_parent_id` = seg.`exam_parent_id`
+        AND sc.`class_period_id` = seg.`class_period_id` AND YEAR(ss.`thetime`) = seg.`thetime` AND seg.`class_id` IS NULL AND seg.`exam_subject_id` IS NULL
+         AND seg.`state` = '1' AND seg.`grade_type` = '1'
+        WHERE  sc.`state` != 0
+
+         AND ss.`exam_parent_id` = #{parameters.examParentId}
+         AND ss.`school_id` = #{parameters.schoolId}
+         AND YEAR(ss.`thetime`) =   #{parameters.thetime}
+         AND sc.`class_period_id` = #{parameters.periodId}
+         AND sc.`class_type_id` = #{parameters.classTypeId}
+         AND sc.`class_level_id` = #{parameters.classLevelId}
+        GROUP BY ss.`register_number`
+        ) AS a
+        GROUP BY a.class_period,a.thetime
+        ) AS aa
+        ORDER BY aa.avg_score DESC
+
+
+
+
+    </select>
+
+    <!--查询平均分信息按班级封装 映射-->
+    <resultMap id="findAverageInfosResultMap" type="com.cj.witscorefind.entity.AverageInfos">
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="class_period" property="classPeriod"/>
+        <result column="thetime" property="thetime"/>
+        <result column="class_id" property="classId"/>
+        <result column="class_name" property="className"/>
+        <result column="class_number" property="classNumber"/>
+        <result column="class_type_id" property="classTypeId"/>
+        <result column="class_type" property="classType"/>
+        <result column="class_level" property="classLevel"/>
+        <result column="class_level_id" property="classLevelId"/>
+        <result column="class_headmaster" property="classHeadmaster"/>
+        <result column="exam_parent_id" property="examParentId"/>
+
+        <collection property="averageRspList" javaType="ArrayList" ofType="com.cj.witscorefind.entity.AverageRsp">
+            <result column="avg_score" property="avgScore"/>
+            <result column="min_score" property="minScore"/>
+            <result column="max_score" property="maxScore"/>
+            <result column="degree" property="degree"/>
+            <result column="full_name" property="fullName"/>
+            <result column="exam_sort" property="examSort"/>
+            <result column="subject_id" property="subjectId"/>
+            <result column="subject_name" property="subjectName"/>
+        </collection>
+    </resultMap>
+    <!--查询平均分信息按班级封装-->
+    <select id="findAverageInfos" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findAverageInfosResultMap">
+        SELECT
+        aa.*,
+        ai.`full_name`
+        FROM
+        (SELECT
+        a.*,
+        (
+        CASE
+        WHEN @subject_id = subject_id
+        THEN @curRow := @curRow + 1
+        ELSE @curRow := 1
+        AND @subject_id := subject_id
+        END
+        ) AS exam_sort
+        FROM
+        (SELECT
+        @curRow := 0,
+        @subject_id := '') AS b,
+        (
+        SELECT
+        ss.`exam_parent_id`,
+        sc.class_period_id,
+        sc.class_period,
+        DATE_FORMAT(sc.thetime, '%Y') AS thetime,
+        sc.class_id,
+        sc.class_name,
+        sc.`class_number`,
+        sc.`class_type_id`,
+        sc.class_type,
+        sc.`class_level_id`,
+        sc.`class_level`,
+        su.subject_id,
+        su.subject_name,
+        sc.class_headmaster,
+        COUNT(IF(ss.score > 0, TRUE, NULL)) AS actually_come,
+        COUNT(IF(ss.score = 0, TRUE, NULL)) AS not_come,
+        AVG(ss.score) AS avg_score,
+        MIN(ss.score) AS min_score,
+        MAX(ss.score) AS max_score,
+        seg.`degree`
+        FROM
+        student_score AS ss
+        LEFT JOIN school_class AS sc
+        ON ss.class_id = sc.class_id
+        LEFT JOIN school_subject AS su
+        ON ss.school_subject_id = su.subject_id
+        LEFT JOIN school_exam_grade seg
+        ON ss.`class_id` = seg.`class_id`
+        AND ss.`school_subject_id` = seg.`exam_subject_id`
+
+        AND ss.`exam_parent_id` = seg.`exam_parent_id`
+        AND ss.`school_id` = seg.`school_id`
+        AND YEAR(ss.`thetime`) = seg.`thetime`
+        AND sc.`class_period_id` = seg.`class_period_id`
+        AND seg.`grade_type` = '3'
+        AND seg.`state` = '1'
+
+        WHERE ss.exam_parent_id = #{parameters.examParentId}
+        AND sc.school_id =#{parameters.schoolId}
+        and sc.`class_type_id` = #{parameters.classTypeId}
+        AND YEAR(ss.`thetime`) = #{parameters.thetime}
+        AND sc.`class_period_id` = #{parameters.periodId}
+        AND sc.state != '0'
+        and ss.`score` !=0
+        and ss.state = '1'
+
+        GROUP BY class_period_id,
+        thetime,
+        subject_id,
+        class_id
+        ORDER BY class_period_id,
+        thetime,
+        class_level_id,
+        subject_id,
+        AVG(ss.score) DESC
+        ) AS a) AS aa
+        LEFT JOIN class_subject_info csi
+        ON csi.`subject_id` = aa.subject_id
+        AND csi.`class_id` = aa.`class_id`
+        LEFT JOIN admin_info ai
+        ON ai.`admin_id` = csi.`admin_id`
+        WHERE 1 = 1
+
+        <if test="parameters.containsKey('classIdList')">
+            AND aa.class_id IN
+            <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+
+
+        <if test="parameters.containsKey('curriculumIdList')">
+            AND aa.subject_id IN
+            <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+                #{curriculumId}
+            </foreach>
+        </if>
+        <if test="parameters.containsKey('classLevelIdList')">
+            AND aa.`class_level_id` IN
+            <foreach collection="parameters.classLevelIdList" item="classLevelId" open="(" close=")" separator=",">
+                #{classLevelId}
+            </foreach>
+        </if>
+        ORDER BY aa.subject_id
+    </select>
+
+    <!--查询年级的平均分情况 映射-->
+    <resultMap id="findAveragesByGradeRsultMap" type="com.cj.witscorefind.entity.AverageInfos">
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="class_period" property="classPeriod"/>
+        <result column="thetime" property="thetime"/>
+        <collection property="averageRspList" javaType="ArrayList" ofType="com.cj.witscorefind.entity.AverageRsp">
+            <result column="subject_id" property="subjectId"/>
+            <result column="subject_name" property="subjectName"/>
+            <result column="avg_score" property="avgScore"/>
+            <result column="min_score" property="minScore"/>
+            <result column="max_score" property="maxScore"/>
+        </collection>
+
+    </resultMap>
+    <!--查询年级的平均分情况-->
+    <select id="findAveragesByGrade" resultMap="findAveragesByGradeRsultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT
+        ss.exam_parent_id,
+        sc.`class_period_id`,
+        sc.`class_period`,
+        DATE_FORMAT(sc.`thetime`, '%Y') AS thetime,
+        su.subject_id,
+        su.subject_name,
+        AVG(ss.score) AS avg_score,
+        MIN(ss.score) AS min_score,
+        MAX(ss.score) AS max_score
+        FROM
+        student_score AS ss
+        LEFT JOIN school_class AS sc
+        ON ss.class_id = sc.class_id
+        LEFT JOIN school_subject AS su
+        ON ss.school_subject_id = su.subject_id
+        AND sc.state != '0'
+
+        WHERE ss.exam_parent_id =  #{parameters.examParentId}
+        AND YEAR(ss.thetime) = #{parameters.thetime}
+        AND sc.class_period_id =  #{parameters.periodId}
+        AND sc.`class_type_id` = #{parameters.classTypeId}
+        AND sc.school_id = #{parameters.schoolId}
+        AND ss.`score` != 0
+        <if test="parameters.containsKey('curriculumIdList')">
+            AND ss.`school_subject_id` IN
+            <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+                #{curriculumId}
+            </foreach>
+        </if>
+        GROUP BY ss.`school_subject_id`
+
+
+
+
+    </select>
+
+    <!--年级总分情况(选择课程时) 映射-->
+    <resultMap id="findAverageTotalGradeResultMap" type="com.cj.witscorefind.entity.AverageRsp">
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="class_period" property="classPeriod"/>
+        <result column="thetime" property="thetime"/>
+        <result column="min_score" property="minScore"/>
+        <result column="max_score" property="maxScore"/>
+        <result column="avg_score" property="avgScore"/>
+    </resultMap>
+    <!--年级总分情况(选择课程时)-->
+    <select id="findAverageTotalGrade" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findAverageTotalGradeResultMap">
+        <!--SELECT aa.exam_parent_id,aa.class_period_id,aa.class_period,aa.thetime,
+        MIN(aa.zf_min)AS min_score,
+        MAX(aa.zf_max)AS max_score,
+        AVG(aa.zf_avg)AS avg_score
+        FROM
+        (
+
+        SELECT
+        a. class_id,
+        a.class_name,
+        a.exam_parent_id,
+        a.class_period_id,
+        a.class_period,
+        a.thetime,
+        MIN(a.sum_score) AS zf_min,
+        MAX(a.sum_score) AS zf_max,
+        AVG(a.sum_score) AS zf_avg
+        FROM
+        (
+        SELECT
+        ss.`class_id`,
+        sc.`class_name`,
+        ss.exam_parent_id,
+        sc.`class_period_id`,
+        sc.`class_period`,
+        DATE_FORMAT(sc.`thetime`, '%Y') AS thetime,
+        AVG(ss.score) AS avg_score,
+        MIN(ss.score) AS min_score,
+        MAX(ss.score) AS max_score,
+        SUM(ss.score) AS sum_score
+        FROM
+        student_score AS ss
+        LEFT JOIN school_class AS sc
+        ON ss.class_id = sc.class_id
+        AND sc.`state` = '1'
+        LEFT JOIN school_subject AS su
+        ON ss.school_subject_id = su.subject_id
+        AND su.state = '1'
+        AND ss.`score` = '1'
+
+
+        WHERE ss.exam_parent_id = #{parameters.examParentId}
+        AND YEAR(ss.thetime) = #{parameters.thetime}
+        AND sc.class_period_id = #{parameters.periodId}
+        AND sc.school_id = #{parameters.schoolId}
+        AND sc.`class_type_id` = #{parameters.classTypeId}
+
+        <if test="parameters.containsKey('gradNotComes') and parameters.gradNotComes.size != 0">
+            AND ss.`register_number` NOT IN
+            <foreach collection="parameters.gradNotComes" item="notCome" open="(" close=")" separator=",">
+                #{notCome}
+            </foreach>
+        </if>
+
+        GROUP BY sc.`class_period_id`,sc.`thetime`,ss.`register_number`
+        )AS a
+        GROUP BY a.`class_id`
+        )AS aa
+        GROUP BY aa.class_period_id,aa.thetime
+-->
+
+
+        select
+        a.exam_parent_id,a.class_period_id,a.class_period,a.thetime,
+        avg(a.sum_score) AS avg_score,
+        max(a.sum_score) AS max_score,
+        min(a.sum_score) AS min_score
+        from
+        (
+        SELECT
+        ss.`class_id`,
+        sc.`class_name`,
+        ss.exam_parent_id,
+        sc.`class_period_id`,
+        sc.`class_period`,
+        DATE_FORMAT(sc.`thetime`, '%Y') AS thetime,
+
+        SUM(ss.score) AS sum_score
+        FROM
+        student_score AS ss
+        LEFT JOIN school_class AS sc
+        ON ss.class_id = sc.class_id
+        AND sc.`state` = '1'
+        LEFT JOIN school_subject AS su
+        ON ss.school_subject_id = su.subject_id
+        AND su.state = '1'
+        AND ss.`state` = '1'
+
+
+        WHERE ss.exam_parent_id =#{parameters.examParentId}
+        AND YEAR(ss.thetime) = #{parameters.thetime}
+        AND sc.class_period_id = #{parameters.periodId}
+        AND sc.school_id = #{parameters.schoolId}
+        AND sc.`class_type_id` = #{parameters.classTypeId}
+
+
+        <if test="parameters.containsKey('gradNotComes') and parameters.gradNotComes.size != 0">
+            AND ss.`register_number` NOT IN
+            <foreach collection="parameters.gradNotComes" item="notCome" open="(" close=")" separator=",">
+                #{notCome}
+            </foreach>
+        </if>
+
+        GROUP BY sc.`class_period_id`,sc.`thetime`,ss.`register_number`
+        ) as a
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findExamComeByTotalResultMap" type="com.cj.witscorefind.entity.ExamCome">
+        <result column="class_id" property="classId"/>
+        <result column="not_come" property="notCome"/>
+        <collection property="registerNumbers" javaType="ArrayList" ofType="java.lang.String">
+            <result column="register_number"/>
+        </collection>
+    </resultMap>
+    <!--查询这次考试  总分的缺考学生的id集合-->
+    <select id="findExamComeByTotal" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findExamComeByTotalResultMap">
+        SELECT a.class_id,a.register_number,COUNT(*) AS not_come
+        FROM
+        (
+        SELECT *
+        FROM student_score
+        WHERE school_id = #{parameters.schoolId}
+        AND exam_parent_id = #{parameters.examParentId}
+        AND YEAR(thetime) = #{parameters.thetime}
+        <if test="parameters.containsKey('classIdList')">
+            AND class_id IN
+            <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+        AND score = 0
+        AND state = '1'
+        GROUP BY class_id,register_number
+        )AS a
+        GROUP BY class_id,register_number
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findExamTotalResultMap" type="com.cj.witscorefind.entity.ExamCome">
+        <result column="class_id" property="classId"/>
+        <result column="total" property="total"/>
+    </resultMap>
+    <!--查询这次考试  各班总分的考试人数-->
+    <select id="findExamTotal" resultMap="findExamTotalResultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT a.class_id,COUNT(*) AS total
+        FROM
+        (
+        SELECT *
+        FROM student_score
+        WHERE school_id = #{parameters.schoolId}
+        AND exam_parent_id = #{parameters.examParentId}
+        AND YEAR(thetime) = #{parameters.thetime}
+        <if test="parameters.containsKey('classIdList')">
+            AND class_id IN
+            <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+        and state = '1'
+        GROUP BY class_id,register_number
+        )AS a
+        GROUP BY class_id
+    </select>
+
+
+    <!--查询这次考试  年级总分的考试总人数-->
+    <select id="findGradeTotal" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultType="java.lang.Integer">
+            SELECT COUNT(*) AS total
+            FROM
+            (
+            select a.*
+            from
+            (
+            SELECT *
+            FROM student_score ss
+            WHERE ss.school_id = #{parameters.schoolId}
+            AND ss.exam_parent_id = #{parameters.examParentId}
+            AND YEAR(ss.thetime) =  #{parameters.thetime}
+            and ss.state = '1'
+            GROUP BY ss.class_id,ss.register_number
+            )
+            as a
+            LEFT JOIN school_class sc ON a.class_id = sc.`class_id`
+            and sc.`school_id` = #{parameters.schoolId}
+            and sc.`state` = '1'
+            where sc.`class_type_id` = #{parameters.classTypeId}
+            AND sc.`class_period_id` = #{parameters.periodId}
+            )AS aa
+            GROUP BY aa.thetime
+    </select>
+
+
+
+    <!--查询这次考试  年级总分的缺考人数 和 学生id集合-->
+    <select id="findGradeExamNotCome" resultType="java.lang.String" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT ss.`register_number`
+        FROM student_score ss
+        LEFT JOIN school_class sc
+        ON ss.`class_id` = sc.`class_id`
+        AND sc.`school_id` =  #{parameters.schoolId}
+        AND sc.`state` = '1'
+        AND YEAR(sc.thetime) = #{parameters.thetime}
+        AND sc.`class_period_id` = #{parameters.periodId}
+        WHERE ss.school_id = #{parameters.schoolId}
+        AND ss.exam_parent_id = #{parameters.examParentId}
+        AND YEAR(ss.thetime) =#{parameters.thetime}
+        AND ss.score = 0
+        AND ss.state = '1'
+        AND sc.`class_type_id` = #{parameters.classTypeId}
+        GROUP BY ss.class_id,ss.register_number
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findSubNotComesResultMap" type="com.cj.witscorefind.entity.ExamCome">
+        <result column="class_id" property="classId"/>
+        <result column="school_subject_id" property="subjectId"/>
+        <result column="not_come" property="notCome"/>
+    </resultMap>
+    <!--查询这次考试  各班各科的缺考学生id集合-->
+    <select id="findSubNotComes" resultMap="findSubNotComesResultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        select a.class_id,a.school_subject_id,count(*) as not_come
+            from
+            (
+            select ss.`class_id`,ss.`school_subject_id`,ss.`register_number`
+            from student_score ss
+            where ss.`exam_parent_id` = #{parameters.examParentId}
+            AND ss.`school_id` = #{parameters.schoolId}
+            and ss.`state` = '1'
+            and year(ss.`thetime`) = #{parameters.thetime}
+            and ss.`score` = 0
+        <if test="parameters.containsKey('classIdList')">
+            AND ss.class_id IN
+            <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+            )as a
+            group by a.class_id,a.school_subject_id
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findSubActuallyComesResultMap" type="com.cj.witscorefind.entity.ExamCome">
+        <result column="class_id" property="classId"/>
+        <result column="school_subject_id" property="subjectId"/>
+        <result column="total" property="total"/>
+    </resultMap>
+    <!--查询这次考试  各班各科的考试总人数-->
+    <select id="findSubActuallyComes" resultMap="findSubActuallyComesResultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        select a.class_id,a.school_subject_id,count(*) as total
+            from
+            (
+            select *
+            from student_score ss
+            where ss.`exam_parent_id` = #{parameters.examParentId}
+            and ss.`school_id` = #{parameters.schoolId}
+            and ss.`state` = '1'
+            and year(ss.`thetime`) =  #{parameters.thetime}
+        <if test="parameters.containsKey('classIdList')">
+            AND ss.class_id IN
+            <foreach collection="parameters.classIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+            )as a
+            group by a.class_id,a.school_subject_id
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findAradeSubComesResultMap" type="com.cj.witscorefind.entity.ExamCome">
+        <result column="school_subject_id" property="subjectId"/>
+        <result column="total" property="total"/>
+    </resultMap>
+    <!--查询年级各科考试总人数-->
+    <select id="findAradeSubComes" resultMap="findAradeSubComesResultMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT aa.school_subject_id, COUNT(*) AS total
+            FROM
+            (
+            SELECT a.*
+            FROM
+            (
+            SELECT *
+            FROM student_score ss
+            WHERE ss.school_id = #{parameters.schoolId}
+            AND ss.exam_parent_id = #{parameters.examParentId}
+            AND YEAR(ss.thetime) = #{parameters.thetime}
+            AND ss.state = '1'
+
+        <if test="parameters.containsKey('curriculumIdList')">
+            AND ss.`school_subject_id` IN
+            <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+                #{curriculumId}
+            </foreach>
+        </if>
+            GROUP BY ss.class_id,ss.`register_number`,ss.school_subject_id
+            )
+            AS a
+            LEFT JOIN school_class sc ON a.class_id = sc.`class_id`
+            AND sc.`school_id` = #{parameters.schoolId}
+            AND sc.`state` = '1'
+            WHERE sc.`class_type_id` = #{parameters.classTypeId}
+            AND sc.`class_period_id` = #{parameters.periodId}
+            )AS aa
+            GROUP BY aa.thetime,aa.school_subject_id
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findAradeSubNotComesMap" type="com.cj.witscorefind.entity.ExamCome">
+        <result column="school_subject_id" property="subjectId"/>
+        <result column="not_come" property="notCome"/>
+    </resultMap>
+    <!--查询年级各科缺考人数-->
+    <select id="findAradeSubNotComes" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findAradeSubNotComesMap">
+        SELECT a.school_subject_id,COUNT(*) AS not_come
+        FROM
+        (
+       SELECT b.*
+       FROM
+       (
+        SELECT *
+        FROM student_score ss
+        WHERE ss.school_id = #{parameters.schoolId}
+        AND ss.exam_parent_id =  #{parameters.examParentId}
+        AND YEAR(ss.thetime) = #{parameters.thetime}
+        <if test="parameters.containsKey('curriculumIdList')">
+            AND ss.`school_subject_id` IN
+            <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+                #{curriculumId}
+            </foreach>
+        </if>
+        AND ss.score = 0
+        AND ss.state = '1'
+        GROUP BY ss.class_id,ss.register_number,ss.`school_subject_id`
+        ) AS b
+        LEFT JOIN school_class sc
+        ON b.class_id = sc.`class_id`
+        AND sc.`school_id` = #{parameters.schoolId}
+        AND sc.`state` = '1'
+        WHERE sc.`class_type_id` = #{parameters.classTypeId}
+        AND sc.`class_period_id` = #{parameters.periodId}
+        )AS a
+        GROUP BY a.school_subject_id
+    </select>
+
+
+    <resultMap id="findClassLevelMap" type="com.cj.witbasics.entity.SchoolClassLevel">
+        <id column="class_level_id" property="classLevelId"/>
+        <result column="classlevel_name" property="classlevelName"/>
+    </resultMap>
+    <!--查询每个班的层次名称-->
+    <select id="findClassLevel" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findClassLevelMap">
+        SELECT *
+            FROM school_class_level
+            WHERE school_id = #{parameters.schoolId}
+    </select>
+
+
+    <!--获取所有课程名称-->
+    <select id="findSubjectName" resultType="java.lang.String" parameterType="java.lang.Integer">
+        select subject_name
+        from `school_subject`
+        where subject_id = #{subjectId}
+    </select>
+</mapper>

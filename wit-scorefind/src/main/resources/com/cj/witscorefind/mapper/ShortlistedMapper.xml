@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.ShortlistedMapper" >
+
+
+    <!--映射-->
+    <resultMap id="findFindShortlistedMap" type="com.cj.witscorefind.entity.ShortlistedResp">
+        <result column="class_id" property="classId"/>
+        <result column="class_number" property="classNumber"/>
+        <result column="class_name" property="className"/>
+        <result column="class_type_id" property="classTypeId"/>
+        <result column="class_type" property="classType"/>
+        <result column="class_level_id" property="classLevelId"/>
+        <result column="classlevel_name" property="classLevel"/>
+        <result column="class_headmaster" property="classHeadmaster"/>
+        <collection property="shortlistedList" javaType="ArrayList" ofType="com.cj.witscorefind.entity.Shortlisted">
+            <result column="exam_subject_id" property="subjectId"/>
+            <result column="exam_subject" property="subjectName"/>
+            <result column="full_name" property="fullName"/>
+            <collection property="gradeShorts" javaType="ArrayList" ofType="com.cj.witscorefind.entity.GradeShort">
+                <result column="grade_name" property="gradeName"/>
+                <result column="num_score" property="dNumScore"/>
+                <result column="num_task" property="dTask"/>
+            </collection>
+        </collection>
+        <collection property="totalList" javaType="ArrayList" ofType="com.cj.witscorefind.entity.GradeShort">
+            <result column="zf_grade_name" property="gradeName"/>
+            <result column="zf_num_task" property="task"/>
+            <result column="zf_num_score" property="totalScore"/>
+        </collection>
+    </resultMap>
+    <!--查询各班、各科、各班总分 入围信息-->
+    <select id="findFindShortlisted" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findFindShortlistedMap">
+        select aa.*,ai.`full_name`
+        from
+        (
+
+        SELECT a.*,g2.`grade_name` AS zf_grade_name,
+            g2.`num_score` AS zf_num_score,g2.`num_task` AS zf_num_task
+            FROM
+            (
+            SELECT seg.`class_id`,sc.`class_number`,sc.`class_name`,sc.`class_headmaster`,sc.`class_type_id`,
+            sc.`class_type`,sc.`class_level_id`,scl.`classlevel_name`,seg.`exam_subject_id`,
+            seg.`exam_subject`,g.`grade_name`,g.`num_score`,g.`num_task`
+            FROM `school_exam_grade` seg
+            LEFT JOIN grade g
+            ON seg.`exam_grade_id` = g.`exam_grade_id`
+            LEFT JOIN `school_class` sc
+            ON seg.`class_id` = sc.`class_id`
+            AND sc.`school_id` = #{parameters.schoolId}
+            AND sc.`state` = '1'
+            LEFT JOIN `school_class_level` scl
+            ON sc.`class_level_id` = scl.`class_level_id`
+            AND scl.`school_id` = #{parameters.schoolId}
+
+        where 1 = 1
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND seg.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+
+        <if test="parameters.containsKey('newSubjectIds') and parameters.newSubjectIds.size != 0">
+            AND seg.`exam_subject_id` IN
+            <foreach collection="parameters.newSubjectIds" item="curriculumId" open="(" close=")" separator=",">
+                #{curriculumId}
+            </foreach>
+        </if>
+            AND seg.`grade_type` = '3'
+            AND g.`grade_type` = '1'
+
+            AND seg.`school_id` = #{parameters.schoolId}
+            AND seg.`exam_parent_id` =  #{parameters.examParentId}
+            AND seg.`class_period_id` = #{parameters.periodId}
+            AND seg.`thetime` = #{parameters.thetime}
+            AND seg.class_type_id = #{parameters.classTypeId}
+            AND seg.`state` = '1'
+            ) AS a
+            LEFT JOIN `school_exam_grade` seg2
+            ON a.class_id = seg2.`class_id`
+            AND seg2.`school_id` = #{parameters.schoolId}
+            AND seg2.`exam_parent_id` =  #{parameters.examParentId}
+            AND seg2.`class_period_id` = #{parameters.periodId}
+            AND seg2.`thetime` = #{parameters.thetime}
+            AND seg2.`class_type_id` = #{parameters.classTypeId}
+            AND seg2.`grade_type` = '2'
+            AND seg2.`state` = '1'
+            LEFT JOIN grade g2
+            ON seg2.`exam_grade_id` = g2.`exam_grade_id`
+
+        ) as aa
+        left join class_subject_info csi
+        on aa.class_id = csi.`class_id`
+        and aa.exam_subject_id = csi.`subject_id`
+        AND csi.`state` = '1'
+        left join admin_info ai
+        on csi.`admin_id` = ai.`admin_id`
+        and ai.`state` = '1'
+
+        order by aa.exam_subject_id ,aa.grade_name,zf_grade_name
+    </select>
+
+
+
+    <!--映射-->
+    <resultMap id="findScoresMap" type="com.cj.witscorefind.entity.ShortlistedScore">
+        <result column="class_id" property="classId"/>
+        <collection property="subScores" javaType="ArrayList" ofType="com.cj.witscorefind.entity.SubScore">
+            <result column="school_subject_id" property="subjectId"/>
+            <collection property="scores" javaType="ArrayList" ofType="com.cj.witbasics.entity.StudentScore">
+                <result column="score" property="score"/>
+                <result column="register_number" property="registerNumber"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <!--查询各班各学科每个人的成绩-->
+    <select id="findScores" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findScoresMap">
+        select ss.`class_id`,ss.`school_subject_id`,ss.`register_number`,ss.`score`
+        from `student_score` ss
+        where ss.`school_id` = #{parameters.schoolId}
+        and ss.`exam_parent_id` = #{parameters.examParentId}
+        and year(ss.`thetime`) = #{parameters.thetime}
+        and ss.`state` = '1'
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND ss.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+
+        <if test="parameters.containsKey('curriculumIdList')">
+            AND ss.`school_subject_id` IN
+            <foreach collection="parameters.curriculumIdList" item="curriculumId" open="(" close=")" separator=",">
+                #{curriculumId}
+            </foreach>
+        </if>
+    </select>
+
+
+
+    <!--映射-->
+    <resultMap id="findTotalScoresMap" type="com.cj.witscorefind.entity.ShortlistedScore">
+        <result column="class_id" property="classId"/>
+        <collection property="scores" javaType="ArrayList" ofType="com.cj.witbasics.entity.StudentScore">
+            <result column="register_number" property="registerNumber"/>
+            <result column="total" property="score"/>
+        </collection>
+    </resultMap>
+    <!--查询各班每个人的总分-->
+    <select id="findTotalScores" resultMap="findTotalScoresMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+             SELECT
+              ss.`class_id`,ss.`register_number`,SUM(ss.`score`) AS total
+            FROM
+              student_score ss
+            WHERE ss.`school_id` = #{parameters.schoolId}
+              AND ss.`state` = '1'
+              AND ss.`exam_parent_id` = #{parameters.examParentId}
+              AND YEAR(ss.`thetime`) = #{parameters.thetime}
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND ss.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+            GROUP BY ss.`register_number`
+    </select>
+
+
+    <!--查询该类型下 所有班级id-->
+    <select id="findClassIdByType" resultType="java.lang.Long" parameterType="com.cj.witscorefind.entity.ShortlistedScore">
+        SELECT class_id
+        FROM `school_class` sc
+        WHERE sc.`state` = '1'
+        AND sc.`school_id` = #{parameters.schoolId}
+        AND sc.`class_period_id` = #{parameters.periodId}
+        AND YEAR(sc.thetime) = #{parameters.thetime}
+        AND sc.class_type_id = #{parameters.classTypeId}
+    </select>
+
+    <!--获取所有的层次id-->
+    <select id="findClassLevelIdList" resultType="java.lang.Integer" parameterType="com.cj.witscorefind.entity.ShortlistedScore">
+        SELECT class_level_id
+        FROM `school_class_level`
+        WHERE school_id = #{parameters.schoolId}
+    </select>
+</mapper>

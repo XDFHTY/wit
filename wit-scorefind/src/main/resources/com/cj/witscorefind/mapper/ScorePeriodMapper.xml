@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.ScorePeriodMapper" >
+
+
+    <!--映射-->
+    <resultMap id="findTotalScoresMap" type="com.cj.witscorefind.entity.ShortlistedScore">
+        <result column="class_id" property="classId"/>
+        <result column="class_number" property="classNumber"/>
+        <collection property="scores" javaType="ArrayList" ofType="com.cj.witbasics.entity.StudentScore">
+            <result column="register_number" property="registerNumber"/>
+            <result column="total" property="score"/>
+        </collection>
+    </resultMap>
+    <!--查询各班每个人的总分-->
+    <select id="findTotalScores" resultMap="findTotalScoresMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT
+        ss.`class_id`,ss.`register_number`,SUM(ss.`score`) AS total,sc.class_number
+        FROM
+        student_score ss
+        left join `school_class` sc
+        on ss.`class_id` = sc.`class_id`
+        and sc.`school_id` = 9
+        and sc.`state` = '1'
+        WHERE ss.`school_id` = #{parameters.schoolId}
+        AND ss.`state` = '1'
+        AND ss.`exam_parent_id` = #{parameters.examParentId}
+        AND YEAR(ss.`thetime`) = #{parameters.thetime}
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND ss.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+        GROUP BY ss.`register_number`
+    </select>
+
+    <!--映射-->
+    <resultMap id="findScoresMap" type="com.cj.witscorefind.entity.ShortlistedScore">
+        <result column="class_id" property="classId"/>
+        <result column="class_number" property="classNumber"/>
+        <collection property="subScores" javaType="ArrayList" ofType="com.cj.witscorefind.entity.SubScore">
+            <result column="school_subject_id" property="subjectId"/>
+            <result column="subject_name" property="subName"/>
+            <collection property="scores" javaType="ArrayList" ofType="com.cj.witbasics.entity.StudentScore">
+                <result column="score" property="score"/>
+                <result column="register_number" property="registerNumber"/>
+            </collection>
+        </collection>
+    </resultMap>
+    <!--查询各班单学科每个人的成绩-->
+    <select id="findScores" parameterType="com.cj.witcommon.utils.entity.other.Pager" resultMap="findScoresMap">
+        select ss.`class_id`,ss2.`subject_name`,ss.`school_subject_id`,ss.`register_number`,ss.`score`,sc.class_number
+        from `student_score` ss
+        left join `school_class` sc
+        on ss.`class_id` = sc.`class_id`
+        and sc.`school_id` = #{parameters.schoolId}
+        and sc.`state` = '1'
+        LEFT JOIN `school_subject` ss2
+        ON ss.`school_subject_id` = ss2.`subject_id`
+        AND ss2.`state` = '1'
+        where ss.`school_id` = #{parameters.schoolId}
+        and ss.`exam_parent_id` = #{parameters.examParentId}
+        and year(ss.`thetime`) = #{parameters.thetime}
+        and ss.`state` = '1'
+        <if test="parameters.containsKey('newClassIdList') and parameters.newClassIdList.size != 0">
+            AND ss.`class_id` IN
+            <foreach collection="parameters.newClassIdList" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+        </if>
+
+        <if test="parameters.containsKey('curriculumId')">
+            AND ss.`school_subject_id` = #{parameters.curriculumId}
+        </if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witbasics.mapper.SchoolSubjectsMapper" >
+  <resultMap id="BaseResultMap" type="com.cj.witbasics.entity.SchoolSubjects" >
+    <id column="subjects_id" property="subjectsId" jdbcType="BIGINT" />
+    <result column="school_id" property="schoolId" jdbcType="BIGINT" />
+    <result column="subjects_name" property="subjectsName" jdbcType="VARCHAR" />
+    <result column="subjects_english_name" property="subjectsEnglishName" jdbcType="VARCHAR" />
+    <result column="subjects_sort" property="subjectsSort" jdbcType="INTEGER" />
+    <result column="is_begin" property="isBegin" jdbcType="CHAR" />
+    <result column="founder_id" property="founderId" jdbcType="BIGINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="operator_id" property="operatorId" jdbcType="BIGINT" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    subjects_id, school_id, subjects_name, subjects_english_name, subjects_sort, is_begin, 
+    founder_id, create_time, operator_id, update_time, state
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from school_subjects
+    where subjects_id = #{subjectsId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from school_subjects
+    where subjects_id = #{subjectsId,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.cj.witbasics.entity.SchoolSubjects" >
+    insert into school_subjects (subjects_id, school_id, subjects_name, 
+      subjects_english_name, subjects_sort, is_begin, 
+      founder_id, create_time, operator_id, 
+      update_time, state)
+    values (#{subjectsId,jdbcType=BIGINT}, #{schoolId,jdbcType=BIGINT}, #{subjectsName,jdbcType=VARCHAR}, 
+      #{subjectsEnglishName,jdbcType=VARCHAR}, #{subjectsSort,jdbcType=INTEGER}, #{isBegin,jdbcType=CHAR}, 
+      #{founderId,jdbcType=BIGINT}, #{createTime,jdbcType=TIMESTAMP}, #{operatorId,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{state,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.cj.witbasics.entity.SchoolSubjects" >
+    insert into school_subjects
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="subjectsId != null" >
+        subjects_id,
+      </if>
+      <if test="schoolId != null" >
+        school_id,
+      </if>
+      <if test="subjectsName != null" >
+        subjects_name,
+      </if>
+      <if test="subjectsEnglishName != null" >
+        subjects_english_name,
+      </if>
+      <if test="subjectsSort != null" >
+        subjects_sort,
+      </if>
+      <if test="isBegin != null" >
+        is_begin,
+      </if>
+      <if test="founderId != null" >
+        founder_id,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="operatorId != null" >
+        operator_id,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="state != null" >
+        state,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="subjectsId != null" >
+        #{subjectsId,jdbcType=BIGINT},
+      </if>
+      <if test="schoolId != null" >
+        #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="subjectsName != null" >
+        #{subjectsName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectsEnglishName != null" >
+        #{subjectsEnglishName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectsSort != null" >
+        #{subjectsSort,jdbcType=INTEGER},
+      </if>
+      <if test="isBegin != null" >
+        #{isBegin,jdbcType=CHAR},
+      </if>
+      <if test="founderId != null" >
+        #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cj.witbasics.entity.SchoolSubjects" >
+    update school_subjects
+    <set >
+      <if test="schoolId != null" >
+        school_id = #{schoolId,jdbcType=BIGINT},
+      </if>
+      <if test="subjectsName != null" >
+        subjects_name = #{subjectsName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectsEnglishName != null" >
+        subjects_english_name = #{subjectsEnglishName,jdbcType=VARCHAR},
+      </if>
+      <if test="subjectsSort != null" >
+        subjects_sort = #{subjectsSort,jdbcType=INTEGER},
+      </if>
+      <if test="isBegin != null" >
+        is_begin = #{isBegin,jdbcType=CHAR},
+      </if>
+      <if test="founderId != null" >
+        founder_id = #{founderId,jdbcType=BIGINT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorId != null" >
+        operator_id = #{operatorId,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="state != null" >
+        state = #{state,jdbcType=CHAR},
+      </if>
+    </set>
+    where subjects_id = #{subjectsId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cj.witbasics.entity.SchoolSubjects" >
+    update school_subjects
+    set school_id = #{schoolId,jdbcType=BIGINT},
+      subjects_name = #{subjectsName,jdbcType=VARCHAR},
+      subjects_english_name = #{subjectsEnglishName,jdbcType=VARCHAR},
+      subjects_sort = #{subjectsSort,jdbcType=INTEGER},
+      is_begin = #{isBegin,jdbcType=CHAR},
+      founder_id = #{founderId,jdbcType=BIGINT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      operator_id = #{operatorId,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      state = #{state,jdbcType=CHAR}
+    where subjects_id = #{subjectsId,jdbcType=BIGINT}
+  </update>
+
+
+  <!--删除科目信息-->
+  <update id="deleteSubjects" parameterType="java.lang.Long" >
+    UPDATE school_subjects
+    SET state = '0'
+    where 
+    subjects_id = #{subjectsId,jdbcType=BIGINT}
+  </update>
+  
+  <!--根据科目名称检查是否已存在-->
+  <select id="findSunbjectsBySubjectsName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    school_subjects sss
+    WHERE
+    sss.subjects_name = #{subjectsName}
+
+  </select>
+
+  <!--根据schoolId查询科目信息-->
+  <select id="findAllSubjectsBySchhoolId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    school_subjects sss
+    WHERE
+    sss.school_id = #{schoolId}
+    AND
+    sss.state = '1'
+  </select>
+</mapper>

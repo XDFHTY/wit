@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.SurviveMapper" >
+
+    <resultMap id="ScoreGrade" type="com.cj.witscorefind.entity.ScoreGrade">
+        <result column="exam_parent_id" property="examParentId"></result>
+        <result column="class_period_id" property="periodId"></result>
+        <result column="thetime" property="thetime"></result>
+        <result column="class_type_id" property="classTypeId"></result>
+        <result column="grade_name" property="gradeName"></result>
+        <result column="num_max" property="numMax"></result>
+        <result column="num_min" property="numMin"></result>
+        <result column="num_score" property="numScore"></result>
+    </resultMap>
+
+    <!--查询分数档次-->
+    <select id="findScoreGrade" parameterType="java.util.Map" resultMap="ScoreGrade">
+        SELECT
+        seg.`exam_parent_id`,seg.`class_period_id`,seg.`thetime`,seg.`class_type_id`,
+        g.`grade_name`,g.`num_max`,g.`num_min`,g.`num_score`
+        FROM
+        school_exam_grade seg
+        LEFT JOIN grade g ON g.`exam_grade_id` = seg.`exam_grade_id`
+        WHERE
+        seg.`exam_parent_id` = #{examParentId}
+        AND
+        seg.`class_period_id` = #{periodId}
+        AND
+        seg.`thetime`= #{thetime}
+        AND
+        class_type_id = #{classTypeId}
+        AND
+        seg.`grade_type` = 1
+        AND
+        g.`grade_type` = 1
+
+    </select>
+
+    <resultMap id="ExamClassStudentTotalScore" type="com.cj.witscorefind.entity.ExamClass">
+        <result column="exam_parent_id" property="examParentId"></result>
+        <result column="period_id" property="periodId"></result>
+        <result column="thetime" property="thetime"></result>
+        <result column="class_type_id" property="classTypeId"></result>
+        <result column="class_id" property="classId"></result>
+        <result column="class_number" property="classNumber"></result>
+        <result column="class_headmaster" property="classHeadmaster"></result>
+        <result column="class_type" property="classType"></result>
+        <result column="classlevel_name" property="classLevel"></result>
+        <collection property="classStudentTotalScores" ofType="com.cj.witscorefind.entity.ClassStudentTotalScore">
+            <result column="register_number" property="registerNumber"></result>
+            <result column="total_score" property="totalScore"></result>
+            <result column="students_come_in" property="studentsComeIn"></result>
+            <result column="original_school" property="originalSchool"></result>
+        </collection>
+
+    </resultMap>
+
+    <!--查询学生总分成绩-->
+    <select id="findTotalScore" parameterType="java.util.Map" resultMap="ExamClassStudentTotalScore">
+        SELECT
+        ss.`exam_parent_id`,so.`period_id`,DATE_FORMAT(ss.`thetime`,'%Y') AS thetime,sc.`class_type_id`,ss.`class_id`,
+        ss.`register_number`,SUM(ss.`score`) AS total_score,
+        so.`students_come_in`,so.`original_school`,sc.`class_number`,sc.`class_headmaster`,sc.`class_type`,scl.`classlevel_name`
+        FROM
+        student_score ss
+
+        LEFT JOIN school_class sc ON sc.`class_id` = ss.`class_id`
+        LEFT JOIN student_osaas so ON so.`register_number` = ss.`register_number`
+        LEFT JOIN `school_class_level` scl ON sc.`class_level_id` = scl.`class_level_id`
+        WHERE
+        ss.`exam_parent_id` = #{examParentId}
+        AND
+        so.`period_id` = #{periodId}
+        AND
+        YEAR(ss.`thetime`) = #{thetime}
+        AND
+        sc.`class_type_id` = #{classTypeId}
+        GROUP BY ss.`class_id`,ss.`register_number`
+    </select>
+
+    <!--查询学校名称-->
+    <select id="findSchoolName" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+        sb.school_name
+        FROM
+        school_basic sb
+        WHERE
+        sb.school_id = #{schoolId}
+        AND
+        sb.state = '1'
+    </select>
+
+</mapper>

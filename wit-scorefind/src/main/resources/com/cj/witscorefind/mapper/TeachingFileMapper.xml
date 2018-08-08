@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cj.witscorefind.mapper.TeachingFileMapper" >
+
+
+
+    <!--映射-->
+    <resultMap id="findTeachingFileMap" type="com.cj.witscorefind.entity.TeacherClassCurse">
+        <result column="full_name" property="fullName"/>
+        <result column="staff_number" property="staffNumber"/>
+        <result column="class_id" property="classId"/>
+        <result column="class_period_id" property="classPeriodId"/>
+        <result column="class_period" property="classPeriod"/>
+        <result column="thetime" property="thetime"/>
+        <result column="class_name" property="className"/>
+        <result column="class_level_id" property="classLevelId"/>
+        <result column="classlevel_name" property="classLevel"/>
+        <result column="class_type_id" property="classTypeId"/>
+        <result column="class_type" property="classType"/>
+        <result column="subject_id" property="subjectId"/>
+        <result column="subject_name" property="subjectName"/>
+    </resultMap>
+    <!--根据教职工编号查询所教班级和课程-->
+    <select id="findTeachingFile" resultMap="findTeachingFileMap">
+        select ai.`full_name`,ai.`staff_number`,cui.`class_id`,
+        sc.`class_period_id`,sc.`class_period`,year(sc.`thetime`) as thetime,sc.`class_name`,
+        sc.`class_level_id`,scl.`classlevel_name`,sc.`class_type_id`,sc.`class_type`,ss.`subject_id`,ss.`subject_name`
+        from `admin_info` ai
+        left join `class_subject_info` cui
+        on ai.`admin_id` = cui.`admin_id`
+        left join `school_class` sc
+        on cui.`class_id` = sc.class_id
+        and sc.`school_id` = #{schoolId}
+        and sc.`state` = '1'
+        and cui.`state` = '1'
+        left join `school_class_level` scl
+        on sc.`class_level_id` = scl.`class_level_id`
+        AND scl.`school_id` = #{schoolId}
+        left join `school_subject` ss
+        on cui.`subject_id` = ss.`subject_id`
+        and ss.`school_id` = #{schoolId}
+        and ss.`state` = '1'
+        where ai.`staff_number` = #{staffNumber}
+        and ai.`state` = '1'
+    </select>
+
+
+    <!--查询这个班级的这个课程  所有的考试父id-->
+    <select id="findExamParentIds" resultType="java.lang.Long" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        SELECT DISTINCT ss.`exam_parent_id`
+        FROM `student_score` ss
+        WHERE ss.`school_id` = #{parameters.schoolId}
+        AND ss.`class_id` = #{parameters.classId}
+        AND ss.`school_subject_id` = #{parameters.curriculumId}
+        AND ss.`state` = '1'
+        limit #{minRow},#{pageSize}
+    </select>
+
+
+    <!--计数-->
+    <select id="findExamParentIdsTotal" resultType="java.lang.Integer" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        select  count(DISTINCT ss.`exam_parent_id`)
+        FROM `student_score` ss
+        WHERE ss.`school_id` = #{parameters.schoolId}
+        AND ss.`class_id` = #{parameters.classId}
+        AND ss.`school_subject_id` = #{parameters.curriculumId}
+        AND ss.`state` = '1'
+    </select>
+
+
+    <!--映射-->
+    <resultMap id="findExamClassSubMap" type="com.cj.witscorefind.entity.ExamClassSubject">
+        <result column="exam_parent_id" property="examParentId"/>
+        <result column="exam_name" property="examName"/>
+        <result column="exam_time" property="examTime"/>
+        <result column="avg_score" property="avgScore"/>
+        <result column="min_score" property="minScore"/>
+        <result column="max_score" property="maxScore"/>
+        <result column="exam_sort" property="rank"/>
+    </resultMap>
+    <!--查询这几次考试这个班的这个学科的平均分信息-->
+    <select id="findExamClassSub" resultMap="findExamClassSubMap" parameterType="com.cj.witcommon.utils.entity.other.Pager">
+        
+SELECT aaa.*
+FROM
+(
+SELECT
+        aa.*,
+        (
+        CASE
+        WHEN @subject_id = exam_parent_id
+        THEN @curRow := @curRow + 1
+        ELSE @curRow := 1
+        AND @subject_id := exam_parent_id
+        END
+        ) AS exam_sort
+        FROM
+        (SELECT
+        @curRow := 0,
+        @subject_id := '') AS b,
+        (
+SELECT seg.`exam_name`,se.`exam_time`,a.*,sc.`class_type_id`
+FROM
+(
+SELECT
+        ss.`exam_parent_id`,
+        ss.`exam_id`,
+        ss.`class_id`,
+        ss.`thetime`,
+        ss.`school_subject_id`,
+        AVG(ss.score) AS avg_score,
+        MIN(ss.score) AS min_score,
+        MAX(ss.score) AS max_score
+        FROM
+        student_score AS ss
+
+        WHERE 1 = 1
+
+        and ss.exam_parent_id IN
+            <foreach collection="parameters.examParentIds" item="examParentId" open="(" close=")" separator=",">
+                #{examParentId}
+            </foreach>
+       
+        AND ss.school_id =#{parameters.schoolId}
+        AND YEAR(ss.`thetime`) = #{parameters.thetime}
+        AND ss.`score` !=0
+        AND ss.`school_subject_id` = #{parameters.curriculumId}
+
+        GROUP BY 
+        ss.`exam_parent_id`,
+        thetime,
+        ss.`school_subject_id`,
+        class_id
+        
+        ) AS a
+        LEFT JOIN school_class AS sc
+        ON a.class_id = sc.class_id
+        AND sc.`school_id` = #{parameters.schoolId}
+        AND sc.`state` = '1'
+        LEFT JOIN `school_exam` se
+        ON a.`exam_id` = se.`exam_id`
+        AND se.`school_id` = #{parameters.schoolId}
+        AND se.`state` = '1'
+        LEFT JOIN `school_exam_parent` seg
+        ON a.`exam_parent_id` = seg.`exam_parent_id`
+        
+        
+        WHERE sc.`class_type_id` = #{parameters.classTypeId}
+        AND sc.`class_period_id` = #{parameters.periodId}
+        ORDER BY 
+        
+        a.exam_parent_id,
+        a.avg_score DESC
+        ) AS aa
+        ) AS aaa
+        WHERE aaa.class_id = #{parameters.classId}
+        ORDER BY aaa.exam_time DESC
+
+    </select>
+</mapper>
